@@ -3,7 +3,7 @@ var request = require("request");
 var jsdom = require("jsdom");
 var router = express.Router();
 
-/* GET home page. */
+/* POST /instagram/userID. */
 router.post('/userID', function (req, res, next) {
     var userName = req.body.userName;
     if (typeof userName === 'undefined') {
