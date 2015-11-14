@@ -1,0 +1,35 @@
+doctype html
+html
+    head
+        title= title
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        link(rel='stylesheet', href='/stylesheets/jQuery.mobile.structure.min.css')
+        script(src='/javascript/jQuery.min.js')
+        script(src='/javascript/main.js')
+        script(src='/javascript/jQuery.hotkeys.js')
+        script(src='/javascript/jQuery.mobile.min.js')
+        style#ui-loader-remove.
+            .ui-loader {
+                display: none
+            }
+body
+    div#header
+        div#header-content
+            h1 Team Free Hugs
+        div#dropdown
+            div.dropdownBar
+            div.dropdownBar
+            div.dropdownBar
+            div.dropdownBar
+    div#sidebar-left(data-showing='false')
+    div#content
+        block content
+
+    div#footer
+        div#links-container
+            h4 Links
+            div#links
+                a(href="/") Home
+        div
+            h5(style="display: inline-block" title="Totally copyrighted") Design copyrighted by Eyeballcode 2015
+
