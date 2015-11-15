@@ -17,5 +17,6 @@
     "jsdom": "latest",
     "request": "latest",
     "compression": "latest",
+    "mongodb": "^2.0.47"
   }
 }

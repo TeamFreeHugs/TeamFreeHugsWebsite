@@ -7,8 +7,29 @@ var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
 var instagram = require('./routes/instagram');
+var chat = require('./routes/chat');
+
+var mongo = require('mongodb').MongoClient;
 
 var app = express();
+
+var usedDBCs = [
+    'instagramUserID',
+    'instagramMediaID'
+];
+
+global.dbcs = {};
+
+mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
+    if (err) throw err;
+    db.createCollection('instagramUserID', function (err, collection) {
+        if (err) throw err;
+        db.createIndex('userNames', {description: 'text'}, {}, function () {
+        });
+        dbcs.instagramUserID = collection;
+    });
+});
+
 
 app.use(function (req, res, next) {
     res.userAgent = req.headers['user-agent'].toString().toLowerCase();
@@ -31,6 +52,7 @@ app.use(require('compression')());
 
 app.use('/', routes);
 app.use('/instagram', instagram);
+app.use('/chat', chat);
 
 
 // catch 404 and forward to error handler
