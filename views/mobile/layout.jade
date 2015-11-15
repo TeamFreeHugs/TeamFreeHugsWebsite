@@ -1,21 +1,25 @@
 doctype html
 html
     head
-        title= title
+        if typeof title !== 'undefined'
+            title= title
         link(rel='stylesheet', href='/stylesheets/style.css')
-        link(rel='stylesheet', href='/stylesheets/jQuery.mobile.structure.min.css')
+        link(rel='stylesheet', href='/stylesheets/jQuery.mobile.structure.css')
         script(src='/javascript/jQuery.min.js')
         script(src='/javascript/main.js')
+        script(src='/javascript/mobileMain.js')
         script(src='/javascript/jQuery.hotkeys.js')
         script(src='/javascript/jQuery.mobile.min.js')
         style#ui-loader-remove.
             .ui-loader {
                 display: none
             }
+        block head
 body
     div#header
         div#header-content
-            h1 Team Free Hugs
+            h1
+                a#home(href="/") Team Free Hugs
         div#dropdown
             div.dropdownBar
             div.dropdownBar

@@ -4,7 +4,7 @@ var jsdom = require("jsdom");
 var router = express.Router();
 
 /* POST /instagram/userID. */
-router.post('/userID', function (req, res, next) {
+router.post('/userID', function (req, res) {
     var userName = req.body.userName;
     if (typeof userName === 'undefined') {
         res.status(400).send(JSON.stringify({
@@ -24,6 +24,7 @@ router.post('/userID', function (req, res, next) {
 
                     eval(elements[2].innerHTML);
 
+                    //noinspection JSUnresolvedVariable
                     if (typeof window._sharedData === 'undefined') {
                         res.status(400).send(JSON.stringify({
                             meta: {
@@ -33,6 +34,7 @@ router.post('/userID', function (req, res, next) {
                         }));
                         res.end();
                     } else {
+                        //noinspection JSUnresolvedVariable
                         res.status(200).send(JSON.stringify({
                             meta: {
                                 code: 200
@@ -49,4 +51,82 @@ router.post('/userID', function (req, res, next) {
 });
 
 
+/* POST /instagram/mediaID. */
+router.post('/mediaID', function (req, res) {
+    var mediaID = req.body.mediaID;
+    if (typeof mediaID === 'undefined') {
+        res.status(400).send(JSON.stringify({
+            meta: {
+                code: 400,
+                reason: 'Media ID not provided'
+            }
+        }));
+        res.end();
+    } else {
+        request('https://api.instagram.com/oembed?url=http://instagram.com/p/' + mediaID, function (error, response, body) {
+            if (body === 'No Media Match') {
+                res.status(400).send(JSON.stringify({
+                    meta: {
+                        code: 400,
+                        reason: 'Media Not Found'
+                    }
+                }));
+                res.end();
+            } else {
+                var json = JSON.parse(body);
+                res.status(200).send(JSON.stringify({
+                    meta: {
+                        code: 200
+                    }, data: {
+                        mediaID: json.media_id,
+                        userName: json.author_name
+                    }
+                }));
+                res.end();
+            }
+        });
+    }
+});
+
+
+/* POST /instagram/postDetails. */
+router.post('/postDetails', function (req, res) {
+    var mediaID = req.body.mediaID;
+    if (typeof mediaID === 'undefined') {
+        res.status(400).send(JSON.stringify({
+            meta: {
+                code: 400,
+                reason: 'Media ID not provided'
+            }
+        }));
+        res.end();
+    } else {
+        request('https://api.instagram.com/oembed?url=http://instagram.com/p/' + mediaID, function (error, response, body) {
+            if (body === 'No Media Match') {
+                res.status(400).send(JSON.stringify({
+                    meta: {
+                        code: 400,
+                        reason: 'Media Not Found'
+                    }
+                }));
+                res.end();
+            } else {
+                var json = JSON.parse(body);
+                res.status(200).send(JSON.stringify({
+                    meta: {
+                        code: 200
+                    }, data: {
+                        mediaID: json.media_id,
+                        userName: json.author_name,
+                        imageLink: json.thumbnail_url,
+                        height: json.thumbnail_height,
+                        width: json.thumbnail_width,
+                        tite: json.title
+                    }
+                }));
+                res.end();
+            }
+        });
+    }
+});
 module.exports = router;

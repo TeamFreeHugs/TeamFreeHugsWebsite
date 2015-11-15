@@ -15,6 +15,7 @@
     "serve-favicon": "~2.3.0",
     "stylus": "0.42.3",
     "jsdom": "latest",
-    "request": "latest"
+    "request": "latest",
+    "compression": "latest",
   }
 }

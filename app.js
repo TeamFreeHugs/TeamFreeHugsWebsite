@@ -10,7 +10,7 @@ var instagram = require('./routes/instagram');
 
 var app = express();
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     res.userAgent = req.headers['user-agent'].toString().toLowerCase();
     next();
 });
@@ -25,8 +25,9 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
-app.use(require('stylus').middleware(path.join(__dirname, 'public')));
+app.use(require('stylus').middleware(path.join(__dirname, '/public/stylesheets')));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(require('compression')());
 
 app.use('/', routes);
 app.use('/instagram', instagram);
@@ -45,8 +46,10 @@ app.use(function (req, res, next) {
 // will print stacktrace
 if (app.get('env') === 'development') {
     app.use(function (err, req, res, next) {
-        res.status(err.status || 500);
-        res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/error', {
+
+        var status = err.status || 500;
+        res.status(status);
+        res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error' + status, {
             message: err.message,
             error: err
         });
@@ -56,9 +59,9 @@ if (app.get('env') === 'development') {
 // production error handler
 // no stacktraces leaked to user
 app.use(function (err, req, res, next) {
-    res.status(err.status || 500);
-
-    res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/error', {
+    var status = err.status || 500;
+    res.status(status);
+    res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error' + status, {
         message: err.message,
         error: {}
     });

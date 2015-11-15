@@ -1,16 +1,14 @@
 $(function () {
 
-    //Only for computer, because what phone is so big?
-    if ($('body').height() < $(window).height()) {
-        $('#footer').css({
-            position: 'absolute',
-            bottom: 0
-        });
-    }
 
-    $(document).keydown('esc', function (e) {
+    $(document).swipeleft(function () {
         if ($('#sidebar-left').attr('data-showing') === 'true') {
             $('#dropdown').click();
+        }
+    }).swiperight(function (e) {
+        if ($('#sidebar-left').attr('data-showing') === 'false') {
+            if (e.swipestart.coords[0] < 100)
+                $('#dropdown').click();
         }
     });
 
