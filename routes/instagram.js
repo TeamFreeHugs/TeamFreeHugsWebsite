@@ -80,8 +80,8 @@ router.post('/userID', function (req, res) {
 
 /* POST /instagram/mediaID. */
 router.post('/mediaID', function (req, res) {
-    var mediaID = req.body.mediaID;
-    if (typeof mediaID === 'undefined') {
+    var publicID = req.body.publicID;
+    if (typeof publicID === 'undefined') {
         res.status(400).send(JSON.stringify({
             meta: {
                 code: 400,
@@ -90,26 +90,45 @@ router.post('/mediaID', function (req, res) {
         }));
         res.end();
     } else {
-        request('https://api.instagram.com/oembed?url=http://instagram.com/p/' + mediaID, function (error, response, body) {
-            if (body === 'No Media Match') {
-                res.status(400).send(JSON.stringify({
-                    meta: {
-                        code: 400,
-                        reason: 'Media Not Found'
-                    }
-                }));
-                res.end();
-            } else {
-                var json = JSON.parse(body);
+        dbcs.instagramMediaID.findOne({publicId: publicID}, function (err, user) {
+            if (user) {
                 res.status(200).send(JSON.stringify({
                     meta: {
                         code: 200
                     }, data: {
-                        mediaID: json.media_id,
-                        userName: json.author_name
+                        mediaID: user.mediaID,
+                        userName: user.authorName
                     }
                 }));
                 res.end();
+            } else {
+                request('https://api.instagram.com/oembed?url=http://instagram.com/p/' + publicID, function (error, response, body) {
+                    if (body === 'No Media Match') {
+                        res.status(400).send(JSON.stringify({
+                            meta: {
+                                code: 400,
+                                reason: 'Media Not Found'
+                            }
+                        }));
+                        res.end();
+                    } else {
+                        var json = JSON.parse(body);
+                        res.status(200).send(JSON.stringify({
+                            meta: {
+                                code: 200
+                            }, data: {
+                                mediaID: json.media_id,
+                                userName: json.author_name
+                            }
+                        }));
+                        res.end();
+                        dbcs.instagramMediaID.insert({
+                            publicId: publicID,
+                            mediaID: json.media_id,
+                            authorName: json.author_name
+                        });
+                    }
+                });
             }
         });
     }
