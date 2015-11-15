@@ -1,6 +1,5 @@
 $(function () {
 
-
     $(document).swipeleft(function () {
         if ($('#sidebar-left').attr('data-showing') === 'true') {
             $('#dropdown').click();
@@ -12,7 +11,7 @@ $(function () {
         }
     });
 
-    $('#dropdown').click(function (e) {
+    $('#dropdown').touch(function (e) {
         if ($('#sidebar-left').attr('data-showing') === 'false') {
             $('#sidebar-left').stop().animate({
                 left: 0
@@ -28,7 +27,7 @@ $(function () {
                 top: 0,
                 left: 0
             }).attr('id', 'display-block').click(function () {
-                $('#dropdown').click();
+                $('#dropdown').touch();
             }));
         }
         else {
