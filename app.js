@@ -34,6 +34,12 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
         });
         dbcs.instagramMediaID = collection;
     });
+    db.createCollection('instagramPostDetails', function (err, collection) {
+        if (err) throw err;
+        db.createIndex('postDetails', {description: 'text'}, {}, function () {
+        });
+        dbcs.instagramPostDetails = collection;
+    });
 });
 
 
