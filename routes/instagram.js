@@ -17,8 +17,10 @@ router.post('/userID', function (req, res) {
         res.end();
     } else {
         dbcs.instagramUserID.findOne({name: userName}, function (err, user) {
-            if (user && !req.body.cached) {
-                res.status(200).send(JSON.stringify({
+            if (user) {
+                res.status(200);
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.send(JSON.stringify({
                     meta: {
                         code: 200
                     }, data: {
@@ -38,8 +40,10 @@ router.post('/userID', function (req, res) {
                             eval(elements[2].innerHTML);
 
                             //noinspection JSUnresolvedVariable
-                            if (typeof window._sharedData === 'undefined') {
-                                res.status(400).send(JSON.stringify({
+                            if (typeof window._sharedData === 'undefined' || typeof window._sharedData.entry_data === 'undefined') {
+                                res.status(400);
+                                res.setHeader('Access-Control-Allow-Origin', '*');
+                                res.send(JSON.stringify({
                                     meta: {
                                         code: 400,
                                         reason: 'User not found'
@@ -49,7 +53,9 @@ router.post('/userID', function (req, res) {
                             } else {
                                 //noinspection JSUnresolvedVariable
                                 var userID = window._sharedData.entry_data.ProfilePage[0].user.id;
-                                res.status(200).send(JSON.stringify({
+                                res.status(200);
+                                res.setHeader('Access-Control-Allow-Origin', '*');
+                                res.send(JSON.stringify({
                                     meta: {
                                         code: 200
                                     }, data: {
