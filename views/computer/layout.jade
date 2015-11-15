@@ -1,14 +1,14 @@
 doctype html
 html
-    head
+    head(profile='http://www.w3.org/2005/10/profile')
         if typeof title !== 'undefined'
             title= title
         link(rel='stylesheet', href='/stylesheets/style.css')
-        link(rel='stylesheet', href='/stylesheets/jQuery.mobile.structure.css')
+        link(rel='shortcut icon', type='image/x-icon', href='/favicon.ico')
+        link(rel='apple-touch-icon', type='image/png', href='/favicon.png')
         script(src='/javascript/jQuery.min.js')
         script(src='/javascript/main.js')
         script(src='/javascript/jQuery.hotkeys.js')
-        script(src='/javascript/jQuery.mobile.min.js')
         style#ui-loader-remove.
             .ui-loader {
                 display: none

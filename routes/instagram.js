@@ -82,7 +82,9 @@ router.post('/userID', function (req, res) {
 router.post('/mediaID', function (req, res) {
     var publicID = req.body.publicID;
     if (typeof publicID === 'undefined') {
-        res.status(400).send(JSON.stringify({
+        res.status(400);
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.send(JSON.stringify({
             meta: {
                 code: 400,
                 reason: 'Media ID not provided'
@@ -92,7 +94,9 @@ router.post('/mediaID', function (req, res) {
     } else {
         dbcs.instagramMediaID.findOne({publicId: publicID}, function (err, media) {
             if (media) {
-                res.status(200).send(JSON.stringify({
+                res.status(200);
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.send(JSON.stringify({
                     meta: {
                         code: 200
                     }, data: {
@@ -104,7 +108,9 @@ router.post('/mediaID', function (req, res) {
             } else {
                 request('https://api.instagram.com/oembed?url=http://instagram.com/p/' + publicID, function (error, response, body) {
                     if (body === 'No Media Match') {
-                        res.status(400).send(JSON.stringify({
+                        res.status(400);
+                        res.setHeader('Access-Control-Allow-Origin', '*');
+                        res.send(JSON.stringify({
                             meta: {
                                 code: 400,
                                 reason: 'Media Not Found'
@@ -113,7 +119,9 @@ router.post('/mediaID', function (req, res) {
                         res.end();
                     } else {
                         var json = JSON.parse(body);
-                        res.status(200).send(JSON.stringify({
+                        res.status(200);
+                        res.setHeader('Access-Control-Allow-Origin', '*');
+                        res.send(JSON.stringify({
                             meta: {
                                 code: 200
                             }, data: {
@@ -139,7 +147,9 @@ router.post('/mediaID', function (req, res) {
 router.post('/postDetails', function (req, res) {
     var publicID = req.body.publicID;
     if (typeof publicID === 'undefined') {
-        res.status(400).send(JSON.stringify({
+        res.status(400);
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.send(JSON.stringify({
             meta: {
                 code: 400,
                 reason: 'Media ID not provided'
@@ -149,7 +159,9 @@ router.post('/postDetails', function (req, res) {
     } else {
         dbcs.instagramPostDetails.findOne({publicID: publicID}, function (err, media) {
             if (media) {
-                res.status(200).send(JSON.stringify({
+                res.status(200);
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.send(JSON.stringify({
                     meta: {
                         code: 200
                     }, data: {
@@ -165,7 +177,9 @@ router.post('/postDetails', function (req, res) {
             } else {
                 request('https://api.instagram.com/oembed?url=http://instagram.com/p/' + publicID, function (error, response, body) {
                     if (body === 'No Media Match') {
-                        res.status(400).send(JSON.stringify({
+                        res.status(400);
+                        res.setHeader('Access-Control-Allow-Origin', '*');
+                        res.send(JSON.stringify({
                             meta: {
                                 code: 400,
                                 reason: 'Media Not Found'
@@ -174,7 +188,9 @@ router.post('/postDetails', function (req, res) {
                         res.end();
                     } else {
                         var json = JSON.parse(body);
-                        res.status(200).send(JSON.stringify({
+                        res.status(200);
+                        res.setHeader('Access-Control-Allow-Origin', '*');
+                        res.send(JSON.stringify({
                             meta: {
                                 code: 200
                             }, data: {
