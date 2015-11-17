@@ -6,7 +6,7 @@ $(function () {
         }
     }).swiperight(function (e) {
         if ($('#sidebar-left').attr('data-showing') === 'false') {
-            if (e.swipestart.coords[0] < 100)
+            if (e.swipestart.coords[0] < screen.width / 3)
                 $('#dropdown').click();
         }
     });
