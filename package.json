@@ -17,6 +17,11 @@
     "jsdom": "latest",
     "request": "latest",
     "compression": "latest",
-    "mongodb": "^2.0.47"
+    "mongodb": "^2.0.47",
+    "express-session": "1.11.3",
+    "moment" : "2.10.3",
+    "emailjs": "1.0.0",
+    "connect-mongo": "0.8.2",
+    "errorhandler": "1.4.2"
   }
 }

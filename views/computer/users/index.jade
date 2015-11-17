@@ -1,0 +1,29 @@
+extends ../layout
+
+block head
+    script.
+        $(function () {
+            var typingTimer;
+            var doneTypingInterval = 1400;
+            var $input = $('#searchBar');
+            $input.on('keyup', function () {
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(doneTyping, doneTypingInterval);
+            });
+            $input.on('keydown', function () {
+                clearTimeout(typingTimer);
+            });
+            function doneTyping() {
+                $.ajax({
+                    type: 'POST',
+                    url: '/users',
+                    data: {
+                        usernameStart: $input.val()
+                    }
+                });
+            }
+        });
+
+
+block content
+    div.users

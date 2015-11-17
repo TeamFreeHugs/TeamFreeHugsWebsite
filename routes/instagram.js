@@ -5,7 +5,7 @@ var mongo = require('mongodb').MongoClient;
 var router = express.Router();
 
 /* POST /instagram/userID. */
-router.post('/userID', function (req, res) {
+router.post('/userID', function (req, res, next) {
     var userName = req.body.userName;
     if (typeof userName === 'undefined') {
         res.status(400);
@@ -33,6 +33,18 @@ router.post('/userID', function (req, res) {
                 res.end();
             } else
                 request('http://instagram.com/' + userName, function (error, response, body) {
+                    if (typeof body === 'undefined') {
+                        res.status(500);
+                        res.setHeader('Access-Control-Allow-Origin', '*');
+                        res.send(JSON.stringify({
+                            meta: {
+                                code: 500,
+                                reason: 'Could not connect to instagram. Try again later.'
+                            }
+                        }));
+                        res.end();
+                        return;
+                    }
                     jsdom.env(
                         body,
                         ['http://instagram.com'],
@@ -81,7 +93,7 @@ router.post('/userID', function (req, res) {
 
 
 /* POST /instagram/mediaID. */
-router.post('/mediaID', function (req, res) {
+router.post('/mediaID', function (req, res, next) {
     var publicID = req.body.publicID;
     if (typeof publicID === 'undefined') {
         res.status(400);
@@ -109,6 +121,19 @@ router.post('/mediaID', function (req, res) {
                 res.end();
             } else {
                 request('https://api.instagram.com/oembed?url=http://instagram.com/p/' + publicID, function (error, response, body) {
+                    if (typeof body === 'undefined') {
+                        res.status(500);
+                        res.setHeader('Access-Control-Allow-Origin', '*');
+                        res.send(JSON.stringify({
+                            meta: {
+                                code: 500,
+                                reason: 'Could not connect to instagram. Try again later.'
+                            }
+                        }));
+                        res.end();
+                        return;
+                    }
+
                     if (body === 'No Media Match') {
                         res.status(400);
                         res.setHeader('Access-Control-Allow-Origin', '*');
@@ -146,7 +171,7 @@ router.post('/mediaID', function (req, res) {
 
 
 /* POST /instagram/postDetails. */
-router.post('/postDetails', function (req, res) {
+router.post('/postDetails', function (req, res, next) {
     var publicID = req.body.publicID;
     if (typeof publicID === 'undefined') {
         res.status(400);
@@ -178,6 +203,18 @@ router.post('/postDetails', function (req, res) {
                 res.end();
             } else {
                 request('https://api.instagram.com/oembed?url=http://instagram.com/p/' + publicID, function (error, response, body) {
+                    if (typeof body === 'undefined') {
+                        res.status(500);
+                        res.setHeader('Access-Control-Allow-Origin', '*');
+                        res.send(JSON.stringify({
+                            meta: {
+                                code: 500,
+                                reason: 'Could not connect to instagram. Try again later.'
+                            }
+                        }));
+                        res.end();
+                        return;
+                    }
                     if (body === 'No Media Match') {
                         res.status(400);
                         res.setHeader('Access-Control-Allow-Origin', '*');

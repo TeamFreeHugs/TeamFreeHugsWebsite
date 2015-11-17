@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var instagram = require('./routes/instagram');
 var chat = require('./routes/chat');
+var users = require('./routes/users');
 
 var mongo = require('mongodb').MongoClient;
 
@@ -15,33 +16,54 @@ var app = express();
 
 var usedDBCs = [
     'instagramUserID',
-    'instagramMediaID'
+    'instagramMediaID',
+    'instagramPostDetails',
+    'users'
 ];
 
 global.dbcs = {};
 
+function noop() {
+}
+
 mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
+    dbcs.db = db;
     if (err) throw err;
     db.createCollection('instagramUserID', function (err, collection) {
         if (err) throw err;
-        db.createIndex('userNames', {description: 'text'}, {}, function () {
-        });
         dbcs.instagramUserID = collection;
     });
     db.createCollection('instagramMediaID', function (err, collection) {
         if (err) throw err;
-        db.createIndex('mediaID', {description: 'text'}, {}, function () {
-        });
         dbcs.instagramMediaID = collection;
     });
     db.createCollection('instagramPostDetails', function (err, collection) {
         if (err) throw err;
-        db.createIndex('postDetails', {description: 'text'}, {}, function () {
-        });
         dbcs.instagramPostDetails = collection;
+    });
+    db.createCollection('users', function (err, collection) {
+        if (err) throw err;
+        dbcs.users = collection;
+        try {
+            require('fs').lstatSync('userCount');
+        } catch (e) {
+            require('fs').writeFileSync('userCount', '0', 'utf8', function (err) {
+                if (err) throw err;
+            });
+        }
+        global.userCount = parseInt(require('fs').readFileSync('userCount', 'utf8'));
     });
 });
 
+function onExit() {
+    require('fs').writeFileSync('userCount', global.userCount, 'utf8');
+}
+
+process.on('exit', onExit);
+
+process.on('SIGINT', onExit);
+
+process.on('uncaughtException', onExit);
 
 app.use(function (req, res, next) {
     res.userAgent = req.headers['user-agent'].toString().toLowerCase();
@@ -63,6 +85,7 @@ app.use(require('compression')());
 app.use('/', routes);
 app.use('/instagram', instagram);
 app.use('/chat', chat);
+app.use('/users', users);
 
 
 // catch 404 and forward to error handler
@@ -78,13 +101,13 @@ app.use(function (req, res, next) {
 // will print stacktrace
 if (app.get('env') === 'development') {
     app.use(function (err, req, res, next) {
-
         var status = err.status || 500;
         res.status(status);
         res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error' + status, {
             message: err.message,
             error: err
         });
+        console.log(err);
     });
 }
 
