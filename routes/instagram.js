@@ -8,7 +8,9 @@ var router = express.Router();
 router.post('/userID', function (req, res) {
     var userName = req.body.userName;
     if (typeof userName === 'undefined') {
-        res.status(400).send(JSON.stringify({
+        res.status(400);
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.send(JSON.stringify({
             meta: {
                 code: 400,
                 reason: 'Username not provided'
@@ -219,3 +221,4 @@ router.post('/postDetails', function (req, res) {
     }
 });
 module.exports = router;
+
