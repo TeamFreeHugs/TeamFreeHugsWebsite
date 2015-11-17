@@ -4,6 +4,7 @@ var path = require('path');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var session = require('express-session');
 
 var routes = require('./routes/index');
 var instagram = require('./routes/instagram');
@@ -11,6 +12,9 @@ var chat = require('./routes/chat');
 var users = require('./routes/users');
 
 var mongo = require('mongodb').MongoClient;
+
+
+var MongoStore = require('connect-mongo')(session);
 
 var app = express();
 
@@ -44,26 +48,8 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
     db.createCollection('users', function (err, collection) {
         if (err) throw err;
         dbcs.users = collection;
-        try {
-            require('fs').lstatSync('userCount');
-        } catch (e) {
-            require('fs').writeFileSync('userCount', '0', 'utf8', function (err) {
-                if (err) throw err;
-            });
-        }
-        global.userCount = parseInt(require('fs').readFileSync('userCount', 'utf8'));
     });
 });
-
-function onExit() {
-    require('fs').writeFileSync('userCount', global.userCount, 'utf8');
-}
-
-process.on('exit', onExit);
-
-process.on('SIGINT', onExit);
-
-process.on('uncaughtException', onExit);
 
 app.use(function (req, res, next) {
     res.userAgent = req.headers['user-agent'].toString().toLowerCase();
@@ -74,6 +60,15 @@ app.use(function (req, res, next) {
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
+
+app.use(session({
+        secret: 'faeb4453e5d14fe6f6d04637f78077c76c73d1b4',
+        proxy: true,
+        resave: true,
+        saveUninitialized: true,
+        store: new MongoStore({host: 'localhost', port: 27017, db: 'TFHWebSite'})
+    })
+);
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));

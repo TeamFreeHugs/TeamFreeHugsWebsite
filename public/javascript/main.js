@@ -41,5 +41,16 @@ $(function () {
         }
 
     });
+    if ($('#usernameTitle').length != 0) {
+        $('#usernameTitle').css({
+            position: 'relative',
+            'margin-left': $('#sidebar-left').width() / 2 - getComputedStyle($('#usernameTitle')[0]).width.match(/\d+/) / 2
+        });
+    }
+
+    $(document).keydown('ctrl+shift+d', function (e) {
+        e.preventDefault();
+        $('#dropdown').click();
+    });
 
 });

@@ -26,3 +26,18 @@ function passStrength(pass) {
     }
     return uniqueChars.length * 2.5 - Math.pow(deductions, 2 / 3) * 0.5 + pass.length * 0.62;
 }
+
+function getQueryHash(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&#]" + name + "=([^&#]*)"), results = regex
+        .exec(location.hash);
+    return results === null ? "" : decodeURIComponent(results[1].replace(
+        /\+/g, " "));
+}
+function getQueryString(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&#]" + name + "=([^&#]*)"), results = regex
+        .exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(
+        /\+/g, " "));
+}

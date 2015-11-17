@@ -159,8 +159,7 @@ var validatePassword = function (plainPass, hashedPass, callback) {
     var salt = hashedPass.substr(0, 10);
     var validHash = salt + md5(plainPass + salt);
     callback(null, hashedPass === validHash);
-}
-
+};
 /* auxiliary methods */
 
 var getObjectId = function (id) {
@@ -180,7 +179,7 @@ var findByMultipleFields = function (a, callback) {
 // this takes an array of name/val pairs to search against {fieldName : 'value'} //
     users.find({$or: a}).toArray(
         function (e, results) {
-            if (e) callback(e)
-            else callback(null, results)
+            if (e) callback(e);
+            else callback(null, results);
         });
-}
+};

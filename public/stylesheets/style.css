@@ -42,7 +42,6 @@ a {
   padding-left: 10px;
   border-left-color: #343434;
 }
-
 #content {
   position: absolute;
   top: 80px;
@@ -84,10 +83,12 @@ body {
   z-index: 101;
   position: fixed;
   top: 0;
-  left: -300px;
+/**left -300px*/
 }
-
 #home {
   color: #000;
   text-decoration: none;
+}
+#sidebar-left > * {
+  margin-left: 10px;
 }

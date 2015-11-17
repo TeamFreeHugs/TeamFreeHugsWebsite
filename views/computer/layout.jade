@@ -9,7 +9,7 @@ html
         script(src='/javascript/jQuery.min.js')
         script(src='/javascript/main.js')
         script(src='/javascript/jQuery.hotkeys.js')
-        meta(content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0', name='viewport')
+        script(src="/javascript/helper.js")
         style#ui-loader-remove.
             .ui-loader {
                 display: none
@@ -25,7 +25,19 @@ body
             div.dropdownBar
             div.dropdownBar
             div.dropdownBar
-    div#sidebar-left(data-showing='false')
+    div#sidebar-left(data-showing='true')
+        if typeof user !== 'undefined'
+            h4#usernameTitle="Logged in as " + user.name
+        p
+            a(href="/") Home
+        if typeof user === 'undefined'
+            //User pages
+            p
+                a(href="/users/signin") Sign in
+            p
+                a(href="/users/login") Log in
+        p
+            a(href="#" onclick="location.reload()") Reload Page
     div#content
         block content
 

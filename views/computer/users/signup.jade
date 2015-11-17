@@ -1,7 +1,6 @@
 extends ../layout
 
 block head
-    script(src="/javascript/helper.js")
     script.
         $(function () {
             $('#content').css({
@@ -24,6 +23,14 @@ block head
             $('#password2').on('keydown, keyup, input', checkPassword);
             $('#password').on('keydown, keyup, input', checkStrength);
             $('#password2').on('keydown, keyup, input', checkStrength);
+            $('#signupForm').submit(function (e) {
+                if ($('#password').val() !== $('#password2').val()) {
+                    alert('Password does not match');
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
         });
     style.
         #content {
@@ -41,6 +48,8 @@ block head
         }
 
 block content
+    if typeof error !== 'undefined'
+        h1= error
     form(method="POST" action="/users/signup")#signupForm
         label Username:
         input(name="username" style="margin-left: 98px;")#username
@@ -52,7 +61,7 @@ block content
         br
         br
         label Confirm password again:
-        input(type="password" style="margin-left: 1px;")#password2
+        input(type="password" style="margin-left: 13px;")#password2
         div(style="margin-left: 10px; display: inline-block;")#passwordStrength
         br
         br

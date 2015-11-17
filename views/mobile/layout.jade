@@ -7,11 +7,10 @@ html
         link(rel='stylesheet', href='/stylesheets/jQuery.mobile.structure.css')
         link(rel='icon', href='/favicon.ico')
         script(src='/javascript/jQuery.min.js')
-        script(src='/javascript/main.js')
         script(src='/javascript/mobileMain.js')
-        script(src='/javascript/jQuery.hotkeys.js')
         script(src='/javascript/jQuery.mobile.min.js')
         meta(content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0', name='viewport')
+        script(src="/javascript/helper.js")
         style#ui-loader-remove.
             .ui-loader {
                 display: none
@@ -28,6 +27,8 @@ body
             div.dropdownBar
             div.dropdownBar
     div#sidebar-left(data-showing='false')
+        if typeof user !== 'undefined'
+            h4="Logged in as " + user.name
     div#content
         block content
 
