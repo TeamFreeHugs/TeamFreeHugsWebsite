@@ -9,3 +9,5 @@ This few things were used in this project:
 2. Password Strength by @bjb568 as well. [Link here](https://devdoodle.net/dev/31)
 
 3. Node-login by @braitsch. [Link here](https://github.com/braitsch/node-login)
+
+4. jQuery-hotkeys by @jeresig. [Link here](https://github.com/jeresig/jquery.hotkeys)

@@ -241,6 +241,9 @@ router.post(/\/rooms\/\d+\/messages\/add/, function (req, res) {
                                 senderImg: 'http://www.gravatar.com/avatar/' + user.emailHash,
                                 messageID: count
                             }));
+                        else {
+                            wsRooms[roomID].pop(wsRooms[roomID].indexOf(wsRooms[roomID][ws]));
+                        }
                     }
                 }
             });
