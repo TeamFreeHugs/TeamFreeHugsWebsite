@@ -10,10 +10,10 @@ html
         script(src='/javascript/main.js')
         script(src='/javascript/jQuery.hotkeys.js')
         script(src="/javascript/helper.js")
-        style#ui-loader-remove.
-            .ui-loader {
-                display: none
-            }
+        script(src='http://crypto-js.googlecode.com/svn/tags/3.0.2/build/rollups/md5.js')
+        if typeof user !== 'undefined'
+            script="$(function(){$('#userImg').attr('src', 'http://www.gravatar.com/avatar/' + CryptoJS.MD5('" + user.email + "').toString())});"
+
         block head
 body
     div#header
@@ -25,18 +25,33 @@ body
             div.dropdownBar
             div.dropdownBar
             div.dropdownBar
-    div#sidebar-left(data-showing='true')
+    div#sidebar-left(data-showing='false')
         if typeof user !== 'undefined'
+            img(width=32 height=32)#userImg
             h4#usernameTitle="Logged in as " + user.name
-        p
+        p.link
             a(href="/") Home
         if typeof user === 'undefined'
             //User pages
-            p
-                a(href="/users/signin") Sign in
-            p
+            p.link
+                a(href="/users/signup") Sign up
+            p.link
                 a(href="/users/login") Log in
-        p
+        else
+            script.remove.
+                $(function () {
+                    $('#logout').click(function (e) {
+                        e.preventDefault();
+                        $.post('/users/logout');
+                        location.reload();
+                    });
+                    $('.remove').remove();
+                });
+            p.link
+                a(href='#')#logout Logout
+        p.link
+            a(href="/chat") Chat
+        p.link
             a(href="#" onclick="location.reload()") Reload Page
     div#content
         block content
@@ -46,6 +61,7 @@ body
             h4 Links
             div#links
                 a(href="/") Home
+                a(href="/chat") Chat
         div
             h5(style="display: inline-block" title="Totally copyrighted") Design copyrighted by Eyeballcode 2015
 

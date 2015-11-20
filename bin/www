@@ -16,18 +16,18 @@ var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**
- * Create HTTP server.
+ * Create HTTP global.server.
  */
 
-var server = http.createServer(app);
+global.server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+global.server.listen(port);
+global.server.on('error', onError);
+global.server.on('listening', onListening);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -82,7 +82,7 @@ function onError(error) {
  */
 
 function onListening() {
-  var addr = server.address();
+  var addr = global.server.address();
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;

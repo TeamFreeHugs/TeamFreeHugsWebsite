@@ -54,7 +54,8 @@ router.post('/signup', function (req, res, next) {
             });
         } else {
             res.status(200);
-            res.redirect('/users/login?signup=true');
+            if (req.body.referrer) res.redirect('/users/login?signup=true&continue=' + req.body.referrer); else
+                res.redirect('/users/login?signup=true');
         }
     })
 
@@ -100,12 +101,24 @@ router.post('/login', function (req, res) {
             return;
         }
         req.session.user = o;
-        console.log(o);
         res.cookie('user', req.body.username);
         res.cookie('pass', req.body.password);
-        res.redirect('/?signup=true');
+        if (req.body.referrer) res.redirect(req.body.referrer); else
+            res.redirect('/?signup=true');
     });
 
+});
+
+router.post('/logout', function (req, res) {
+    res.clearCookie('user');
+    res.clearCookie('pass');
+    req.session.destroy(function (e) {
+        res.status(200);
+        res.send(JSON.stringify({
+            msg: 'Ok'
+        }));
+        res.end();
+    });
 });
 
 module.exports = router;

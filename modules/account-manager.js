@@ -9,12 +9,14 @@ var dbName = 'TFHWebSite';
 /* establish the database connection */
 
 var db,
-    users;
+    users,
+    chatUsers;
 
 mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db1) {
     db = db1;
 
     users = db1.collection('users');
+    chatUsers = db1.collection('chatUsers');
 });
 
 
@@ -61,7 +63,14 @@ exports.addNewAccount = function (newData, callback) {
                         newData.pass = hash;
                         // append date stamp when record was created //
                         newData.date = moment().format('MMMM Do YYYY, h:mm:ss a');
+                        newData.emailHash = require('md5')(newData.email);
                         users.insert(newData, {safe: true}, callback);
+                        chatUsers.insert({
+                            name: newData.name,
+                            email: newData.email,
+                            emailHash: newData.emailHash,
+                            key: require('md5')(newData.email + newData.date + generateSalt())
+                        }, {safe: true});
                     });
                 }
             });
@@ -74,6 +83,7 @@ exports.updateAccount = function (newData, callback) {
         o.name = newData.name;
         o.email = newData.email;
         o.country = newData.country;
+        newData.emailHash = require('md5')(newData.email);
         if (newData.pass == '') {
             users.save(o, {safe: true}, function (err) {
                 if (err) callback(err);
@@ -112,6 +122,12 @@ exports.deleteAccount = function (id, callback) {
 
 exports.getAccountByEmail = function (email, callback) {
     users.findOne({email: email}, function (e, o) {
+        callback(o);
+    });
+};
+
+exports.getAccountByEmailHash = function (hash, callback) {
+    users.findOne({emailHash: hash}, function (e, o) {
         callback(o);
     });
 };

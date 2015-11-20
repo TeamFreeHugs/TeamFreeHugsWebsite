@@ -30,7 +30,7 @@
             8 : "backspace",
             9 : "tab",
             10 : "return",
-            13 : "return",
+            13 : "enter",
             16 : "shift",
             17 : "ctrl",
             18 : "alt",

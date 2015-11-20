@@ -1,14 +1,6 @@
 $(function () {
 
-    //Only for computer, because what phone is so big?
-    if ($('body').height() < $(window).height()) {
-        $('#footer').css({
-            position: 'absolute',
-            bottom: 0
-        });
-    }
-
-    $(document).keydown('esc', function (e) {
+    $(window).keydown('esc', function (e) {
         if ($('#sidebar-left').attr('data-showing') === 'true') {
             $('#dropdown').click();
         }
@@ -41,16 +33,13 @@ $(function () {
         }
 
     });
-    if ($('#usernameTitle').length != 0) {
-        $('#usernameTitle').css({
-            position: 'relative',
-            'margin-left': $('#sidebar-left').width() / 2 - getComputedStyle($('#usernameTitle')[0]).width.match(/\d+/) / 2
-        });
-    }
 
-    $(document).keydown('ctrl+shift+d', function (e) {
+
+    var toggleSidebar = function (e) {
         e.preventDefault();
         $('#dropdown').click();
-    });
+    };
+    $(window).keydown('ctrl+shift+d', toggleSidebar);
+    $('input').keydown('ctrl+shift+d', toggleSidebar);
 
 });

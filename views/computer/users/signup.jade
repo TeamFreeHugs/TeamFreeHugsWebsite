@@ -3,10 +3,15 @@ extends ../layout
 block head
     script.
         $(function () {
-            $('#content').css({
-                position: 'absolute',
-                left: ($(window).width() / 2 - getComputedStyle($('#content')[0]).width.match(/\d+/) / 2)
-            });
+            function center() {
+                $('#content').css({
+                    position: 'absolute',
+                    left: ($(window).width() / 2 - getComputedStyle($('#content')[0]).width.match(/\d+/) / 2)
+                });
+            }
+
+            center();
+            addEventListener('resize', center, false);
             function checkPassword() {
                 if ($('#password').val() !== $('#password2').val()) {
                     $('#passwordError').text('Passwords do not match');
@@ -29,8 +34,23 @@ block head
                     e.preventDefault();
                     return false;
                 }
+                if (!$('#password').val().match(/\d/)) {
+                    alert('Password must contain at least 1 number');
+                    e.preventDefault();
+                    return false;
+                }
+                if (!$('#password').val().match(/[!@#\$%^&*\()\{}\[\]|\\;:'",\./?<>~`\-_+=]/)) {
+                    alert('Password must contain at least 1 special character');
+                    e.preventDefault();
+                    return false;
+                }
             });
 
+            if (getQueryString('continue')) {
+                $('#signupForm').append($('<input>').attr('name', 'referrer').val(getQueryString('continue')).attr('type', 'hidden'));
+                $('#loginLink').attr('href', $('#loginLink').attr('href') + '?continue=' + getQueryString('continue'));
+                $('#signupForm').attr('action', $('#signupForm').attr('action') + location.search);
+            }
         });
     style.
         #content {
@@ -70,3 +90,5 @@ block content
         br
         br
         input(type="submit" value="Sign up")
+    h5
+        a(href="/users/login")#loginLink Have an account? Log in!

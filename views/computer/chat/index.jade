@@ -1,15 +1,18 @@
 extends ../layout
 
 block head
-    style.
-        #footer {
-            display: none;
-        }
-
-        #header {
-            display: none;
-        }
+    link(rel='stylesheet', href='/stylesheets/chat.css')
+    script.
+        $(function () {
+            var roomsXML = $.ajax({
+                type: 'GET',
+                url: '/chat/rooms',
+                async: false
+            }).responseText;
+            $('.roomContainer').html(roomsXML);
+        });
 
 block content
-    div.leftBar
-    div.mainChat
+    div.roomContainer
+    div.roomControl
+        button(onclick="window.location = '/chat/rooms/add'") Add a new room

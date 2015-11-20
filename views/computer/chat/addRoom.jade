@@ -1,0 +1,21 @@
+extends ../layout
+
+block head
+    style.
+        #content {
+            padding-top: 20px;
+        }
+
+        #signupForm label {
+            padding-right: 7px;
+        }
+block content
+    form(method="POST" action="/chat/rooms/add")#addRoomFormlabel Room name:
+        input(style="margin-left: 13px;" name="roomName")#roomName
+        br
+        br
+        label Room description:
+        input(style="margin-left: 13px;" name="roomDescription")#roomDescription
+        br
+        br
+        input(type="submit" value="Add Room!")

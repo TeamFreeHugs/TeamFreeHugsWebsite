@@ -2,6 +2,7 @@ body
   padding 0
   margin 0
   font 14px "Lucida Grande", Helvetica, Arial, sans-serif
+
 a
   color #00B7FF
 
@@ -30,6 +31,11 @@ a
   background-color #3B3C36
   color #FFFAF0
   z-index 1
+  position fixed
+  bottom 0
+
+#content
+  padding-bottom 150px
 
 #links-container > *
   padding-top 5px;
@@ -60,7 +66,7 @@ body
   border-radius 12px
   display block
   position absolute
-  right 10px
+  right 30px
   top calc(80px / 2 - 68px / 2)
   border 2px solid #ffffff
 
@@ -88,5 +94,18 @@ body
   color #000000
   text-decoration none
 
-#sidebar-left > *
+#userImg
   margin-left 10px
+
+#userImg, #usernameTitle
+  display inline-block
+
+#userImg
+  margin-top 10px
+
+#usernameTitle
+  position absolute
+  left 50px
+
+.link
+  margin-left 5px

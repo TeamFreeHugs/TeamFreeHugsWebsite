@@ -18,13 +18,6 @@ var MongoStore = require('connect-mongo')(session);
 
 var app = express();
 
-var usedDBCs = [
-    'instagramUserID',
-    'instagramMediaID',
-    'instagramPostDetails',
-    'users'
-];
-
 global.dbcs = {};
 
 function noop() {
@@ -48,6 +41,18 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
     db.createCollection('users', function (err, collection) {
         if (err) throw err;
         dbcs.users = collection;
+    });
+    db.createCollection('chatRooms', function (err, collection) {
+        if (err) throw err;
+        dbcs.chatRooms = collection;
+    });
+    db.createCollection('chatUsers', function (err, collection) {
+        if (err) throw err;
+        dbcs.chatUsers = collection;
+    });
+    db.createCollection('chatMessages', function (err, collection) {
+        if (err) throw err;
+        dbcs.chatMessages = collection;
     });
 });
 
