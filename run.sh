@@ -1,13 +1,13 @@
 REPO_LINK="https://github.com/TeamFreeHugs/TeamFreeHugsWebsite.git"
 
-if [ "$(whereis nodejs)" == "nodejs: " ]; then
+if [ "$(which nodejs)" == "" ]; then
   echo "NodeJS not found!"
   echo "Installing NodeJS, please wait..."
   wget -qO- https://deb.nodesource.com/setup_4.x | sudo bash -
   sudo apt-get install --yes nodejs
 fi
 
-if [ "$(whereis git)" == "git: " ]; then
+if [ "$(which git)" == "" ]; then
   echo "Git not found!"
   echo "Installing Git, please wait..."
   sudo apt-get install --yes git
