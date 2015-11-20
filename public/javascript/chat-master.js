@@ -12,6 +12,24 @@ function addMessage(sender, senderImg, content, messageID, isOut) {
     )
 }
 
+
+function createChatWS() {
+    var ws = new WebSocket('ws://' + location.hostname + ':4000/rooms/' + CHAT.room.id);
+    ws.onmessage = function (msg) {
+        var data = JSON.parse(msg.data);
+        if (data.eventType === 1) {
+            addMessage(data.senderName, data.senderImg, data.content, data.messageID, (data.senderName === CHAT.user.name))
+            $('.mainChat').scrollTop(99999999999999999);
+        } else {
+        }
+    };
+    ws.onerror = function (event) {
+        ws = createChatWS();
+    };
+    return ws;
+}
+
+
 $(function () {
     window.CHAT = {
         room: {
@@ -20,19 +38,6 @@ $(function () {
             name: $('#usernameTitle').text().split(/Logged in as ([\w+ ]+)+/)[1]
         }
     };
-
-    function createChatWS() {
-        var ws = new WebSocket('ws://' + location.hostname + ':4000/rooms/' + CHAT.room.id);
-        ws.onmessage = function (msg) {
-            var data = JSON.parse(msg.data);
-            addMessage(data.senderName, data.senderImg, data.content, data.messageID, (data.senderName === CHAT.user.name))
-            $('.mainChat').scrollTop(99999999999999999);
-        };
-        ws.onerror = function (event) {
-            ws = createChatWS();
-        };
-        return ws;
-    }
 
     CHAT.ws = createChatWS();
     $.ajax({

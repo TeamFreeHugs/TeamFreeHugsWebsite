@@ -1,7 +1,6 @@
 var express = require('express');
 var WebSocketServer = require('ws').Server;
 var url = require('url');
-
 var wsServer = new WebSocketServer({
     port: 4000,
     server: global.server
@@ -100,7 +99,8 @@ router.post('/rooms/add', function (req, res) {
             dbcs.chatRooms.insert({
                 name: req.body.roomName,
                 roomId: count,
-                description: req.body.roomDescription || ''
+                description: req.body.roomDescription || '',
+                currentUsers: {}
             }, function () {
                 res.redirect('/chat/rooms/' + count + '/' + getRoomName(req.body.roomName));
                 res.end();
@@ -186,6 +186,19 @@ router.get(/\/rooms\/\d+(?:\/(?:\w+|\-)+)?/, function (req, res) {
     }
 });
 
+function broadcastWSEvent(roomID, event) {
+    console.log(event);
+    for (var ws in wsRooms[roomID]) {
+        if (wsRooms[roomID].hasOwnProperty(ws)) {
+            if (wsRooms[roomID][ws].readyState === wsRooms[roomID][0].OPEN)
+                wsRooms[roomID][ws].send(event);
+            else {
+                wsRooms[roomID].pop(wsRooms[roomID].indexOf(wsRooms[roomID][ws]));
+            }
+        }
+    }
+}
+
 router.post(/\/rooms\/\d+\/messages\/add/, function (req, res) {
     if (!req.body.key) {
         res.status(400);
@@ -195,7 +208,7 @@ router.post(/\/rooms\/\d+\/messages\/add/, function (req, res) {
         res.end();
         return;
     }
-    var roomID = parseInt(req.url.match(/rooms\/(\d+)\/messages\/add/)[1]);
+    var roomID = parseInt(req.url.match(/\d+/).join(''));
     dbcs.chatRooms.findOne({roomId: roomID}, function (e, room) {
         if (!room) {
             res.status(400);
@@ -232,27 +245,20 @@ router.post(/\/rooms\/\d+\/messages\/add/, function (req, res) {
             res.send('');
             res.end();
             dbcs.chatMessages.count(function (e, count) {
-                for (var ws in wsRooms[roomID]) {
-                    if (wsRooms[roomID].hasOwnProperty(ws)) {
-                        if (wsRooms[roomID][ws].readyState === wsRooms[roomID][0].OPEN)
-                            wsRooms[roomID][ws].send(JSON.stringify({
-                                content: req.body.text,
-                                senderName: user.name,
-                                senderImg: 'http://www.gravatar.com/avatar/' + user.emailHash,
-                                messageID: count
-                            }));
-                        else {
-                            wsRooms[roomID].pop(wsRooms[roomID].indexOf(wsRooms[roomID][ws]));
-                        }
-                    }
-                }
+                broadcastWSEvent(roomID, JSON.stringify({
+                    eventType: 1,
+                    content: req.body.text,
+                    senderName: user.name,
+                    senderImg: 'http://www.gravatar.com/avatar/' + user.emailHash,
+                    messageID: count
+                }));
             });
         });
     });
 });
 
 router.post(/\/rooms\/\d+\/messages/, function (req, res) {
-    var roomID = parseInt(req.url.match(/\d+/)[0]);
+    var roomID = parseInt(req.url.match(/\d+/).join(''));
     dbcs.chatMessages.find({roomId: roomID}, function (error, messages) {
         var found = 0;
         var limit = req.body.count || 50;
@@ -274,5 +280,98 @@ router.post(/\/rooms\/\d+\/messages/, function (req, res) {
     });
 });
 
+router.post(/\/rooms\/\d+\/join/, function (req, res) {
+    var roomID = parseInt(req.url.match(/\d+/).join(''));
+    if (!req.body.key) {
+        res.status(400);
+        res.send(JSON.stringify({
+            error: 'No key!'
+        }));
+        res.end();
+        return;
+    }
+    dbcs.chatUsers.findOne({key: req.body.key}, function (err, user) {
+        if (!user) {
+            res.status(400);
+            res.send(JSON.stringify({
+                error: 'Invalid key!'
+            }));
+            res.end();
+            return;
+        }
+        dbcs.chatRooms.findOne({roomId: roomID}, function (err, room) {
+            if (!room) {
+                res.status(400);
+                res.send(JSON.stringify({
+                    error: 'No such room!'
+                }));
+                res.end();
+                return;
+            }
+
+            console.log(!room.currentUsers[user.name]);
+            room.currentUsers[user.name] = true;
+            if (!room.currentUsers[user.name]) {
+                room.currentUsers[user.name] = true;
+                broadcastWSEvent(roomID, JSON.stringify({
+                    eventType: 2,
+                    user: user.name,
+                    userImgURL: 'http://www.gravatar.com/avatar/' + user.emailHash
+                }));
+            }
+            res.status(200);
+            res.send(JSON.stringify({
+                result: 'Ok'
+            }));
+            res.end();
+        });
+    });
+});
+
+
+router.post(/\/rooms\/\d+\/leave/, function (req, res) {
+    var roomID = parseInt(req.url.match(/\d+/).join(''));
+    if (!req.body.key) {
+        res.status(400);
+        res.send(JSON.stringify({
+            error: 'No key!'
+        }));
+        res.end();
+        return;
+    }
+    dbcs.chatUsers.findOne({key: req.body.key}, function (err, user) {
+        if (!user) {
+            res.status(400);
+            res.send(JSON.stringify({
+                error: 'Invalid key!'
+            }));
+            res.end();
+            return;
+        }
+        dbcs.chatRooms.findOne({roomId: roomID}, function (err, room) {
+            if (!room) {
+                res.status(400);
+                res.send(JSON.stringify({
+                    error: 'No such room!'
+                }));
+                res.end();
+                return;
+            }
+            console.log(room.currentUsers);
+            if (room.currentUsers[user.name]) {
+                room.currentUsers[user.name] = false;
+                broadcastWSEvent(roomID, JSON.stringify({
+                    eventType: 3,
+                    user: user.name
+                }));
+            }
+            res.status(200);
+            res.send(JSON.stringify({
+                result: 'Ok'
+            }));
+            res.end();
+        });
+    });
+});
 
 module.exports = router;
