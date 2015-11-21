@@ -42,8 +42,7 @@ function createChatWS() {
             case 1:
                 //New message!
                 addMessage(data.senderName, data.senderImg, data.content, data.messageID, (data.senderName === CHAT.user.name))
-                // position: absolute is weird
-                $('.mainChat').scrollTop(99999999999999999);
+                $('body').scrollTop($('body').height());
                 break;
             case 2:
                 //User joined
@@ -109,7 +108,7 @@ $(function () {
             var message = messages[messageID];
             addMessage(message.senderName, message.senderImg, message.content, messageID, (message.senderName === CHAT.user.name));
         }
-        $('.mainChat').scrollTop(999);
+        $('body').scrollTop($('body').height());
         $('#blockChat, #chatLoading').remove();
     });
 
@@ -119,12 +118,9 @@ $(function () {
         url: '/chat/rooms/' + CHAT.room.id + '/users'
     }).done(function (data) {
         var users = JSON.parse(data);
-        console.log(data);
         for (var user in users) {
             if (users.hasOwnProperty(user)) {
                 user = users[user];
-                window.user = user;
-                console.log(user);
                 $('#usersContainer').append(
                     $('<a>').append(
                         $('<img>')

@@ -189,7 +189,6 @@ function broadcastWSEvent(roomID, event) {
             if (wsRooms[roomID][ws]) {
                 if (wsRooms[roomID][ws].readyState === 1)
                     wsRooms[roomID][ws].send(event);
-
                 else
                 //Remove closed WS to save memory
                 //Also, setting to false is fastest.

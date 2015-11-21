@@ -143,7 +143,20 @@ html
                 h4(style='margin-left: 10px;')= name
                 p
                     small=description
-
+                div#roomLinks
+                    if typeof user !== 'undefined'
+                        a#leaveRoom(href='#') Leave Room
+                        script.remove.
+                            $(function () {
+                                $('#leaveRoom').click(function (e) {
+                                    e.preventDefault();
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: '/chat/rooms/' + CHAT.room.id + '/leave',
+                                        data: {key: key()}
+                                    });
+                                });
+                            });
                 div#usersContainer
 
 

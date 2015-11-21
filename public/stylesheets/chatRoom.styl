@@ -1,11 +1,11 @@
 .mainChat
   display block
-  height calc(100vh - 100px)
   width calc(100vw * 0.65)
-  position fixed
-  top 0
-  left 0
-  overflow-y auto
+  height calc(100% - 100px)
+  margin-bottom 150px
+
+body
+  overflow-y scroll
 
 .rightBar
   display block
@@ -112,3 +112,9 @@
 
 .popupClose
   text-decoration none
+
+#usersContainer
+  margin-top 5px
+
+#roomLinks > a
+  font-size 15px
