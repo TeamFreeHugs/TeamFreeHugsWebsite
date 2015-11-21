@@ -49,6 +49,15 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
     db.createCollection('chatUsers', function (err, collection) {
         if (err) throw err;
         dbcs.chatUsers = collection;
+        //    collection.find({}, function (e, users) {
+        //        users.each(function (e, user) {
+        //            if (user) {
+        //                user.rooms = [];
+        //                collection.save(user, {safe: true}, function (e) {
+        //                });
+        //            }
+        //        });
+        //    });
     });
     db.createCollection('chatMessages', function (err, collection) {
         if (err) throw err;

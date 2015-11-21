@@ -16,5 +16,4 @@ router.get('/500', function () {
     throw new Error('Force 500 page');
 });
 
-
 module.exports = router;

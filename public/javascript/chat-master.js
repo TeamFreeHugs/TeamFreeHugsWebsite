@@ -20,7 +20,7 @@ function showPopupDialog(message) {
         }, 1000);
     } else
         $('body').append($('<div>').attr('class', 'popup').append(
-            $('<h1>').text(message)).attr('id', 'popupMessage').append(
+            $('<h2>').text(message)).attr('id', 'popupMessage').append(
             $('<a>').text('Click here to close this message').click(function (e) {
                 e.preventDefault();
                 $('.popup').animate({
@@ -31,17 +31,25 @@ function showPopupDialog(message) {
             }).attr('class', 'popupClose').attr('href', '#')
         ).animate({
             top: 0
-        }), 1000);
+        }, 1000));
 }
 
 function createChatWS() {
     var ws = new WebSocket('ws://' + location.hostname + ':4000/rooms/' + CHAT.room.id);
     ws.onmessage = function (msg) {
         var data = JSON.parse(msg.data);
-        if (data.eventType === 1) {
-            addMessage(data.senderName, data.senderImg, data.content, data.messageID, (data.senderName === CHAT.user.name))
-            $('.mainChat').scrollTop(99999999999999999);
-        } else {
+        switch(data.eventType) {
+            case 1:
+                addMessage(data.senderName, data.senderImg, data.content, data.messageID, (data.senderName === CHAT.user.name))
+                // position: absolute is weird
+                $('.mainChat').scrollTop(99999999999999999);
+                break;
+            case 1000:
+                showPopupDialog('Broadcast message: ' + data.message);
+                break;
+            default:
+                showPopupDialog('Error: Unknown message received from server. Please reload your tab to try again.');
+                break;
         }
     };
     ws.onerror = function () {

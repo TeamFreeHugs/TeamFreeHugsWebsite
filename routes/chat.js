@@ -9,11 +9,9 @@ var wsServer = new WebSocketServer({
 var wsRooms = {};
 
 wsServer.on('close', function close() {
-    console.log('disconnected');
 });
 
 wsServer.on('close', function (ws) {
-    console.log(arguments);
     var location = url.parse(ws.upgradeReq.url, true).path.toString();
     var roomID = parseInt(location.match(/\d+/)[0]);
     wsRooms[roomID].pop(wsRooms[roomID].indexOf(ws));
@@ -103,7 +101,6 @@ router.post('/rooms/add', function (req, res) {
             }, function () {
                 res.redirect('/chat/rooms/' + count + '/' + getRoomName(req.body.roomName));
                 res.end();
-                console.log(count);
                 wsRooms[count] = [];
             });
 
@@ -186,13 +183,13 @@ router.get(/\/rooms\/\d+(?:\/(?:\w+|\-)+)?/, function (req, res) {
 });
 
 function broadcastWSEvent(roomID, event) {
-    console.log(event);
     for (var ws in wsRooms[roomID]) {
         if (wsRooms[roomID].hasOwnProperty(ws)) {
             if (wsRooms[roomID][ws].readyState === wsRooms[roomID][0].OPEN)
                 wsRooms[roomID][ws].send(event);
             else {
-                wsRooms[roomID].pop(wsRooms[roomID].indexOf(wsRooms[roomID][ws]));
+                //Remove closed WS to save memory
+                wsRooms[roomID].splice(wsRooms[roomID].indexOf(wsRooms[roomID][ws]), 1);
             }
         }
     }
@@ -279,6 +276,29 @@ router.post(/\/rooms\/\d+\/messages/, function (req, res) {
     });
 });
 
+router.post(/\/rooms\/\d+\/users/, function (req, res) {
+    var roomID = parseInt(req.url.match(/\d+/).join(''));
+    dbcs.chatUsers.find({rooms: {$in: [roomID]}}, function (err, users) {
+        var output = {};
+        users.count(function (e, count) {
+            var found = 0;
+            users.each(function (err, user) {
+                if (found <= count && user) {
+                    output[user.name] = {
+                        name: user.name,
+                        profileImg: 'http://www.gravatar.com/avatar/' + user.emailHash
+                    }
+                } else {
+                    res.status(200);
+                    res.send(JSON.stringify(output));
+                    res.end();
+                }
+
+            });
+        });
+    });
+});
+
 router.post(/\/rooms\/\d+\/join/, function (req, res) {
     var roomID = parseInt(req.url.match(/\d+/).join(''));
     if (!req.body.key) {
@@ -307,11 +327,10 @@ router.post(/\/rooms\/\d+\/join/, function (req, res) {
                 res.end();
                 return;
             }
-
-            console.log(user);
-
-            if (!user.rooms[roomID]) {
-                user.rooms[roomID] = true;
+            if (user.rooms.indexOf(roomID) == -1) {
+                user.rooms.push(roomID);
+                dbcs.chatUsers.save(user, {safe: true}, function () {
+                });
                 broadcastWSEvent(roomID, JSON.stringify({
                     eventType: 2,
                     user: user.name,
@@ -356,10 +375,11 @@ router.post(/\/rooms\/\d+\/leave/, function (req, res) {
                 res.end();
                 return;
             }
-            console.log(user.rooms);
 
-            if (user.rooms[roomID]) {
-                user.rooms[roomID] = false;
+            if (user.rooms.indexOf(roomID) != -1) {
+                user.rooms.splice(user.rooms.indexOf(roomID), 1);
+                dbcs.chatUsers.save(user, {safe: true}, function () {
+                });
                 broadcastWSEvent(roomID, JSON.stringify({
                     eventType: 3,
                     user: user.name
@@ -372,6 +392,61 @@ router.post(/\/rooms\/\d+\/leave/, function (req, res) {
             res.end();
         });
     });
+});
+
+var allowedUsersToBroadCast = [
+    'eyeballcode'
+];
+
+router.get('/messages/broadcast', function (req, res) {
+    function throw404() {
+        var err = new Error('Not found');
+        err.status = 404;
+        throw err;
+    }
+
+    // Only allow me (Eyeballcode) to broadcast things, haha
+    if (!req.session.user || allowedUsersToBroadCast.indexOf(req.session.user.name.toLowerCase()) === -1) {
+        throw404();
+    } else {
+        if (res.userAgent.indexOf('mobile') != -1) {
+            // Handle mobile someday
+            res.status(400);
+            res.send('Error: You must use a computer to broadcast. Sorry about that :(');
+            res.end();
+        } else {
+            res.render('computer/chat/broadcast');
+        }
+    }
+});
+
+router.post('/messages/broadcast', function (req, res) {
+    function throw404() {
+        var err = new Error('Not found');
+        err.status = 404;
+        throw err;
+    }
+
+    if (!req.session.user || allowedUsersToBroadCast.indexOf(req.session.user.name.toLowerCase()) === -1) {
+        throw404();
+    } else
+        dbcs.chatRooms.find({}, function (e, rooms) {
+            rooms.count(function (e, count) {
+                count--;
+                var found = 0;
+                rooms.each(function (e, room) {
+                    if (found <= count && !!room) {
+                        broadcastWSEvent(room.roomId, JSON.stringify({
+                            eventType: 1000,
+                            message: req.body.message
+                        }));
+                        found++;
+                    } else {
+                        res.render('computer/chat/broadcast');
+                    }
+                });
+            });
+        });
 });
 
 module.exports = router;

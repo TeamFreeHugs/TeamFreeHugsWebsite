@@ -60,7 +60,7 @@ exports.addNewAccount = function (newData, callback) {
                             email: newData.email,
                             emailHash: newData.emailHash,
                             key: require('md5')(newData.email + newData.date + generateSalt()),
-                            rooms: {}
+                            rooms: []
                         }, {safe: true});
                     });
                 }

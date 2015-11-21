@@ -96,7 +96,7 @@
 }
 .popup {
   width: 100vw;
-  height: 100px;
+  min-height: 100px;
   position: fixed;
   top: -100px;
   left: 0;
@@ -104,6 +104,7 @@
   -webkit-box-shadow: 3px 3px 5px 6px #ccc;
   -moz-box-shadow: 3px 3px 5px 6px #ccc;
   box-shadow: 3px 3px 5px 6px #ccc;
+  padding-bottom: 5px;
 }
 .popup > * {
   margin-left: 20px;

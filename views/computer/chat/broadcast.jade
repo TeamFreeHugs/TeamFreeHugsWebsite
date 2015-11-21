@@ -1,0 +1,18 @@
+extends ../layout
+
+block head
+    style.
+        #content {
+            padding-top: 20px;
+        }
+
+        #signupForm label {
+            padding-right: 7px;
+        }
+block content
+    form(method="POST" action="/chat/messages/broadcast")#broadcastForm
+        label Message to broadcast:
+        input(style="margin-left: 5px;" name="message")#broadcastInput
+        br
+        br
+        input(type="submit" value="Broadcast!")
