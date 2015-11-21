@@ -9,12 +9,13 @@ var wsServer = new WebSocketServer({
 var wsRooms = {};
 
 wsServer.on('close', function close() {
+
 });
 
 wsServer.on('close', function (ws) {
     var location = url.parse(ws.upgradeReq.url, true).path.toString();
     var roomID = parseInt(location.match(/\d+/)[0]);
-    wsRooms[roomID].pop(wsRooms[roomID].indexOf(ws));
+    //wsRooms[roomID].pop(wsRooms[roomID].indexOf(ws));
 });
 
 
@@ -185,11 +186,14 @@ router.get(/\/rooms\/\d+(?:\/(?:\w+|\-)+)?/, function (req, res) {
 function broadcastWSEvent(roomID, event) {
     for (var ws in wsRooms[roomID]) {
         if (wsRooms[roomID].hasOwnProperty(ws)) {
-            if (wsRooms[roomID][ws].readyState === wsRooms[roomID][0].OPEN)
-                wsRooms[roomID][ws].send(event);
-            else {
+            if (wsRooms[roomID][ws]) {
+                if (wsRooms[roomID][ws].readyState === 1)
+                    wsRooms[roomID][ws].send(event);
+
+                else
                 //Remove closed WS to save memory
-                wsRooms[roomID].splice(wsRooms[roomID].indexOf(wsRooms[roomID][ws]), 1);
+                //Also, setting to false is fastest.
+                    wsRooms[roomID][ws] = false;
             }
         }
     }
