@@ -11,3 +11,27 @@ This few things were used in this project:
 3. Node-login by @braitsch. [Link here](https://github.com/braitsch/node-login)
 
 4. jQuery-hotkeys by @jeresig. [Link here](https://github.com/jeresig/jquery.hotkeys)
+
+#HOW TO RUN
+1\. Run this code: (`sudo` required!)
+
+    wget -qO- https://deb.nodesource.com/setup_4.x | sudo bash -
+    sudo apt-get install --yes nodejs
+    
+(Taken from [this](http://askubuntu.com/a/673033/241602) Ask Ubuntu answer.)
+
+2\. Download git:
+
+    sudo apt-get install --yes git
+    
+3\. Run this code:
+
+    git clone https://github.com/TeamFreeHugs/TeamFreeHugsWebsite.git
+    cd TeamFreeHugsWebsite
+    npm install -d
+
+4\. You're good to go! Run this to start the server:
+
+    nodejs bin/www
+    
+
