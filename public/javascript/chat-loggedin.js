@@ -22,4 +22,9 @@ $(function () {
     $('#messageInput').keydown('ctrl+enter', function (e) {
         $('#send').click();
     });
+    $.ajax({
+        type: 'POST',
+        url: '/chat/rooms/' + CHAT.room.id + '/join',
+        data: {key: key()}
+    });
 });

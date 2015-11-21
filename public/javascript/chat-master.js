@@ -113,35 +113,29 @@ $(function () {
         $('#blockChat, #chatLoading').remove();
     });
 
+
     $.ajax({
         type: 'POST',
-        url: '/chat/rooms/' + CHAT.room.id + '/join',
-        data: {key: key()}
-    }).done(function () {
-        $.ajax({
-            type: 'POST',
-            url: '/chat/rooms/' + CHAT.room.id + '/users'
-        }).done(function (data) {
-            var users = JSON.parse(data);
-            console.log(data);
-            for (var user in users) {
-                if (users.hasOwnProperty(user)) {
-                    user = users[user];
-                    window.user = user;
-                    console.log(user);
-                    $('#usersContainer').append(
-                        $('<a>').append(
-                            $('<img>')
-                                .attr('src', user.profileImg)
-                                .attr('width', 32)
-                                .attr('height', 32)
-                        ).attr('class', 'userIconCard-' + user.name)
-                            .attr('title', user.name)
-                            .attr('href', '/users/' + user.name)
-                    );
-                }
+        url: '/chat/rooms/' + CHAT.room.id + '/users'
+    }).done(function (data) {
+        var users = JSON.parse(data);
+        console.log(data);
+        for (var user in users) {
+            if (users.hasOwnProperty(user)) {
+                user = users[user];
+                window.user = user;
+                console.log(user);
+                $('#usersContainer').append(
+                    $('<a>').append(
+                        $('<img>')
+                            .attr('src', user.profileImg)
+                            .attr('width', 32)
+                            .attr('height', 32)
+                    ).attr('class', 'userIconCard-' + user.name)
+                        .attr('title', user.name)
+                        .attr('href', '/users/' + user.name)
+                );
             }
-        });
+        }
     });
-
 });
