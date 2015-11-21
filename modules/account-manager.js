@@ -22,16 +22,6 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db1) {
 
 /* login validation methods */
 
-exports.autoLogin = function (user, pass, callback) {
-    users.findOne({user: user}, function (e, o) {
-        if (o) {
-            o.pass == pass ? callback(o) : callback(null);
-        } else {
-            callback(null);
-        }
-    });
-};
-
 exports.manualLogin = function (user, pass, callback) {
     users.findOne({user: user}, function (e, o) {
         if (o == null) {
@@ -69,7 +59,8 @@ exports.addNewAccount = function (newData, callback) {
                             name: newData.name,
                             email: newData.email,
                             emailHash: newData.emailHash,
-                            key: require('md5')(newData.email + newData.date + generateSalt())
+                            key: require('md5')(newData.email + newData.date + generateSalt()),
+                            rooms: {}
                         }, {safe: true});
                     });
                 }

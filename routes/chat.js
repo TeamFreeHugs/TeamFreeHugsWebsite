@@ -99,8 +99,7 @@ router.post('/rooms/add', function (req, res) {
             dbcs.chatRooms.insert({
                 name: req.body.roomName,
                 roomId: count,
-                description: req.body.roomDescription || '',
-                currentUsers: {}
+                description: req.body.roomDescription || ''
             }, function () {
                 res.redirect('/chat/rooms/' + count + '/' + getRoomName(req.body.roomName));
                 res.end();
@@ -309,10 +308,10 @@ router.post(/\/rooms\/\d+\/join/, function (req, res) {
                 return;
             }
 
-            console.log(!room.currentUsers[user.name]);
-            room.currentUsers[user.name] = true;
-            if (!room.currentUsers[user.name]) {
-                room.currentUsers[user.name] = true;
+            console.log(user);
+
+            if (!user.rooms[roomID]) {
+                user.rooms[roomID] = true;
                 broadcastWSEvent(roomID, JSON.stringify({
                     eventType: 2,
                     user: user.name,
@@ -357,9 +356,10 @@ router.post(/\/rooms\/\d+\/leave/, function (req, res) {
                 res.end();
                 return;
             }
-            console.log(room.currentUsers);
-            if (room.currentUsers[user.name]) {
-                room.currentUsers[user.name] = false;
+            console.log(user.rooms);
+
+            if (user.rooms[roomID]) {
+                user.rooms[roomID] = false;
                 broadcastWSEvent(roomID, JSON.stringify({
                     eventType: 3,
                     user: user.name

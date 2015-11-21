@@ -101,8 +101,6 @@ router.post('/login', function (req, res) {
             return;
         }
         req.session.user = o;
-        res.cookie('user', req.body.username);
-        res.cookie('pass', req.body.password);
         if (req.body.referrer) res.redirect(req.body.referrer); else
             res.redirect('/?signup=true');
     });
@@ -110,8 +108,6 @@ router.post('/login', function (req, res) {
 });
 
 router.post('/logout', function (req, res) {
-    res.clearCookie('user');
-    res.clearCookie('pass');
     req.session.destroy(function (e) {
         res.status(200);
         res.send(JSON.stringify({

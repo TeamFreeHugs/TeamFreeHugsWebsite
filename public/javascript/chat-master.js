@@ -12,6 +12,18 @@ function addMessage(sender, senderImg, content, messageID, isOut) {
     )
 }
 
+function showPopupDialog(message) {
+    $('body').append($('<div>').css({
+        width: '100vw',
+        height: 100,
+        'box-shadow': '1px #C8C8C8',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        'background-color': '#ffffff'
+    }).append($('<h1>').text(message))
+        .attr('id', 'popupMessage'));
+}
 
 function createChatWS() {
     var ws = new WebSocket('ws://' + location.hostname + ':4000/rooms/' + CHAT.room.id);
@@ -24,6 +36,11 @@ function createChatWS() {
         }
     };
     ws.onerror = function (event) {
+        if (CHAT.core.wsRetries > 10) {
+            showPopupDialog('Could not connect to the server. Please check your internet connection and reload the page.');
+            return;
+        }
+        CHAT.core.wsRetries++;
         ws = createChatWS();
     };
     return ws;
@@ -36,6 +53,8 @@ $(function () {
             id: parseInt(location.pathname.match(/\d+/)[0])
         }, user: {
             name: $('#usernameTitle').text().split(/Logged in as ([\w+ ]+)+/)[1]
+        }, core: {
+            wsRetries: 0
         }
     };
 
