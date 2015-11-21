@@ -13,16 +13,25 @@ function addMessage(sender, senderImg, content, messageID, isOut) {
 }
 
 function showPopupDialog(message) {
-    $('body').append($('<div>').css({
-        width: '100vw',
-        height: 100,
-        'box-shadow': '1px #C8C8C8',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        'background-color': '#ffffff'
-    }).append($('<h1>').text(message))
-        .attr('id', 'popupMessage'));
+    if (!!$('.popup').length) {
+        $('.popupClose').click();
+        setTimeout(function () {
+            showPopupDialog(message);
+        }, 1000);
+    } else
+        $('body').append($('<div>').attr('class', 'popup').append(
+            $('<h1>').text(message)).attr('id', 'popupMessage').append(
+            $('<a>').text('Click here to close this message').click(function (e) {
+                e.preventDefault();
+                $('.popup').animate({
+                    top: -100
+                }, 1000, function () {
+                    $('.popup').remove();
+                });
+            }).attr('class', 'popupClose').attr('href', '#')
+        ).animate({
+            top: 0
+        }), 1000);
 }
 
 function createChatWS() {
@@ -35,13 +44,15 @@ function createChatWS() {
         } else {
         }
     };
-    ws.onerror = function (event) {
+    ws.onerror = function () {
         if (CHAT.core.wsRetries > 10) {
             showPopupDialog('Could not connect to the server. Please check your internet connection and reload the page.');
             return;
         }
         CHAT.core.wsRetries++;
-        ws = createChatWS();
+        setTimeout(function () {
+            ws = createChatWS();
+        }, 5000);
     };
     return ws;
 }

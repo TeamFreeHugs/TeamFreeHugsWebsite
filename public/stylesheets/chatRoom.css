@@ -94,3 +94,20 @@
   margin-left: 20px;
   margin-right: 5px;
 }
+.popup {
+  width: 100vw;
+  height: 100px;
+  position: fixed;
+  top: -100px;
+  left: 0;
+  background-color: #fff;
+  -webkit-box-shadow: 3px 3px 5px 6px #ccc;
+  -moz-box-shadow: 3px 3px 5px 6px #ccc;
+  box-shadow: 3px 3px 5px 6px #ccc;
+}
+.popup > * {
+  margin-left: 20px;
+}
+.popupClose {
+  text-decoration: none;
+}
