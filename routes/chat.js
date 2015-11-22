@@ -8,17 +8,6 @@ var wsServer = new WebSocketServer({
 
 var wsRooms = {};
 
-wsServer.on('close', function close() {
-
-});
-
-wsServer.on('close', function (ws) {
-    var location = url.parse(ws.upgradeReq.url, true).path.toString();
-    var roomID = parseInt(location.match(/\d+/)[0]);
-    //wsRooms[roomID].pop(wsRooms[roomID].indexOf(ws));
-});
-
-
 wsServer.on('connection', function (ws) {
     var location = url.parse(ws.upgradeReq.url, true).path.toString();
     if (location.match(/\/rooms\/\d+/)) {
@@ -186,19 +175,23 @@ router.get(/\/rooms\/\d+(?:\/(?:\w+|\-)+)?/, function (req, res) {
 function broadcastWSEvent(roomID, event) {
     for (var ws in wsRooms[roomID]) {
         if (wsRooms[roomID].hasOwnProperty(ws)) {
-            if (wsRooms[roomID][ws]) {
-                if (wsRooms[roomID][ws].readyState === 1)
-                    wsRooms[roomID][ws].send(event);
-                else
-                //Remove closed WS to save memory
-                //Also, setting to false is fastest.
-                    wsRooms[roomID][ws] = false;
-            }
+            if (wsRooms[roomID][ws].readyState === wsRooms[roomID][ws].OPEN)
+                wsRooms[roomID][ws].send(event);
         }
     }
 }
 
-router.post(/\/rooms\/\d+\/messages\/add/, function (req, res) {
+setInterval(function () {
+    for (var room in wsRooms) {
+        if (wsRooms.hasOwnProperty(room)) {
+            wsRooms[room] = wsRooms[room].filter(function (e) {
+                return e.readyState === e.OPEN;
+            });
+        }
+    }
+}, 1000);
+
+router.post(/\/rooms\/\d+\/messages\/add\/?$/, function (req, res) {
     if (!req.body.key) {
         res.status(400);
         res.send(JSON.stringify({
@@ -236,7 +229,7 @@ router.post(/\/rooms\/\d+\/messages\/add/, function (req, res) {
             dbcs.chatMessages.insert({
                 roomId: roomID,
                 text: req.body.text,
-                sender: user.emailHash,
+                senderImgURL: user.imgURL,
                 senderName: user.name
             });
 
@@ -248,7 +241,7 @@ router.post(/\/rooms\/\d+\/messages\/add/, function (req, res) {
                     eventType: 1,
                     content: req.body.text,
                     senderName: user.name,
-                    senderImg: 'http://www.gravatar.com/avatar/' + user.emailHash,
+                    senderImg: user.imgURL,
                     messageID: count
                 }));
             });
@@ -256,7 +249,7 @@ router.post(/\/rooms\/\d+\/messages\/add/, function (req, res) {
     });
 });
 
-router.post(/\/rooms\/\d+\/messages/, function (req, res) {
+router.post(/\/rooms\/\d+\/messages\/?$/, function (req, res) {
     var roomID = parseInt(req.url.match(/\d+/).join(''));
     dbcs.chatMessages.find({roomId: roomID}, function (error, messages) {
         var found = 0;
@@ -272,14 +265,14 @@ router.post(/\/rooms\/\d+\/messages/, function (req, res) {
             returnObj['message-' + found] = {
                 content: message.text,
                 senderName: message.senderName,
-                senderImg: 'http://www.gravatar.com/avatar/' + message.sender
+                senderImg: message.senderImgURL
             };
             found++;
         });
     });
 });
 
-router.post(/\/rooms\/\d+\/users/, function (req, res) {
+router.post(/\/rooms\/\d+\/users\/?$/, function (req, res) {
     var roomID = parseInt(req.url.match(/\d+/).join(''));
     dbcs.chatUsers.find({rooms: {$in: [roomID]}}, function (err, users) {
         var output = {};
@@ -289,7 +282,7 @@ router.post(/\/rooms\/\d+\/users/, function (req, res) {
                 if (found <= count && user) {
                     output[user.name] = {
                         name: user.name,
-                        profileImg: 'http://www.gravatar.com/avatar/' + user.emailHash
+                        profileImg: user.imgURL
                     }
                 } else {
                     res.status(200);
@@ -302,7 +295,7 @@ router.post(/\/rooms\/\d+\/users/, function (req, res) {
     });
 });
 
-router.post(/\/rooms\/\d+\/join/, function (req, res) {
+router.post(/\/rooms\/\d+\/join\/?$/, function (req, res) {
     var roomID = parseInt(req.url.match(/\d+/).join(''));
     if (!req.body.key) {
         res.status(400);
@@ -337,7 +330,7 @@ router.post(/\/rooms\/\d+\/join/, function (req, res) {
                 broadcastWSEvent(roomID, JSON.stringify({
                     eventType: 2,
                     user: user.name,
-                    userImgURL: 'http://www.gravatar.com/avatar/' + user.emailHash
+                    userImgURL: user.imgURL
                 }));
             }
             res.status(200);
@@ -350,7 +343,7 @@ router.post(/\/rooms\/\d+\/join/, function (req, res) {
 });
 
 
-router.post(/\/rooms\/\d+\/leave/, function (req, res) {
+router.post(/\/rooms\/\d+\/leave\/?$/, function (req, res) {
     var roomID = parseInt(req.url.match(/\d+/).join(''));
     if (!req.body.key) {
         res.status(400);
@@ -401,7 +394,7 @@ var allowedUsersToBroadCast = [
     'eyeballcode'
 ];
 
-router.get('/messages/broadcast', function (req, res) {
+router.get('/messages/broadcast/', function (req, res) {
     function throw404() {
         var err = new Error('Not found');
         err.status = 404;
@@ -423,7 +416,7 @@ router.get('/messages/broadcast', function (req, res) {
     }
 });
 
-router.post('/messages/broadcast', function (req, res) {
+router.post('/messages/broadcast/', function (req, res) {
     function throw404() {
         var err = new Error('Not found');
         err.status = 404;

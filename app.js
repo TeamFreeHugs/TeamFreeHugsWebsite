@@ -10,6 +10,7 @@ var routes = require('./routes/index');
 var instagram = require('./routes/instagram');
 var chat = require('./routes/chat');
 var users = require('./routes/users');
+var dev = require('./routes/dev');
 
 var mongo = require('mongodb').MongoClient;
 
@@ -49,19 +50,18 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
     db.createCollection('chatUsers', function (err, collection) {
         if (err) throw err;
         dbcs.chatUsers = collection;
-        //    collection.find({}, function (e, users) {
-        //        users.each(function (e, user) {
-        //            if (user) {
-        //                user.rooms = [];
-        //                collection.save(user, {safe: true}, function (e) {
-        //                });
-        //            }
-        //        });
-        //    });
     });
     db.createCollection('chatMessages', function (err, collection) {
         if (err) throw err;
         dbcs.chatMessages = collection;
+    });
+    db.createCollection('chatStars', function (err, collection) {
+        if (err) throw err;
+        dbcs.chatStars = collection;
+    });
+    db.createCollection('dev', function (err, collection) {
+        if (err) throw err;
+        dbcs.dev = collection;
     });
 });
 
@@ -95,6 +95,7 @@ app.use('/', routes);
 app.use('/instagram', instagram);
 app.use('/chat', chat);
 app.use('/users', users);
+app.use('/dev', dev);
 
 
 // catch 404 and forward to error handler
@@ -114,7 +115,8 @@ if (app.get('env') === 'development') {
         res.status(status);
         res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error' + status, {
             message: err.message,
-            error: err
+            error: err,
+            user: req.session.user
         });
         console.log(err);
     });
@@ -127,7 +129,8 @@ app.use(function (err, req, res, next) {
     res.status(status);
     res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error' + status, {
         message: err.message,
-        error: {}
+        error: {},
+        user: req.session.user
     });
 });
 

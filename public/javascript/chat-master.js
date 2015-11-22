@@ -46,20 +46,31 @@ function createChatWS() {
                 break;
             case 2:
                 //User joined
-                $('#usersContainer').append(
-                    $('<a>').append(
-                        $('<img>')
-                            .attr('src', data.userImgURL)
-                            .attr('width', 32)
-                            .attr('height', 32)
-                    ).attr('class', 'userIconCard-' + data.user)
-                        .attr('title', user.name)
-                        .attr('href', '/users/' + data.user)
-                );
+                var toAppend = $('<a>').append(
+                    $('<img>')
+                        .attr('src', data.userImgURL)
+                        .attr('width', 32)
+                        .attr('height', 32)
+                ).attr('class', 'userIconCard-' + data.user)
+                    .attr('title', data.user)
+                    .attr('href', '/users/user/' + data.user)
+                    .css('opacity', '0');
+                if ($('#usersContainer a').get(0))
+                    $($('#usersContainer a').get(0)).before(toAppend.animate({
+                        opacity: 1
+                    }, 1000));
+                else
+                    $('#usersContainer').append(toAppend.animate({
+                        opacity: 1
+                    }, 1000));
                 break;
             case 3:
                 //User left
-                $('.userIconCard-' + data.user).remove();
+                $('.userIconCard-' + data.user).animate({
+                    opacity: 0
+                }, 1000, function () {
+                    $('.userIconCard-' + data.user).remove();
+                });
                 break;
             case 1000:
                 //BROADCASTING!!!
@@ -77,9 +88,7 @@ function createChatWS() {
             return;
         }
         CHAT.core.wsRetries++;
-        setTimeout(function () {
-            ws = createChatWS();
-        }, 5000);
+        ws = createChatWS();
     };
     return ws;
 }
@@ -93,6 +102,21 @@ $(function () {
             name: $('#usernameTitle').text().split(/Logged in as ([\w+ ]+)+/)[1]
         }, core: {
             wsRetries: 0
+        }, roomUsers: {
+            update: function () {
+                $.ajax({url: '../users', type: 'POST'}).done(function(data){
+                    data = JSON.parse(data);
+                    CHAT.roomUsers.users = data;
+                });
+            },
+            users: {},
+            forEach: function (handle) {
+                for (var user in CHAT.roomUsers.users) {
+                    if (CHAT.roomUsers.users.hasOwnProperty(user)) {
+                        handle(CHAT.roomUsers.users[user]);
+                    }
+                }
+            }
         }
     };
 
@@ -118,6 +142,7 @@ $(function () {
         url: '/chat/rooms/' + CHAT.room.id + '/users'
     }).done(function (data) {
         var users = JSON.parse(data);
+        CHAT.roomUsers.users = users;
         for (var user in users) {
             if (users.hasOwnProperty(user)) {
                 user = users[user];

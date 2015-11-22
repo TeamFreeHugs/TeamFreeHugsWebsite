@@ -1,11 +1,10 @@
 var express = require('express');
 var request = require("request");
 var jsdom = require("jsdom");
-var mongo = require('mongodb').MongoClient;
 var router = express.Router();
 
 /* POST /instagram/userID. */
-router.post('/userID', function (req, res, next) {
+router.post('/userID', function (req, res) {
     var userName = req.body.userName;
     if (typeof userName === 'undefined') {
         res.status(400);
@@ -93,7 +92,7 @@ router.post('/userID', function (req, res, next) {
 
 
 /* POST /instagram/mediaID. */
-router.post('/mediaID', function (req, res, next) {
+router.post('/mediaID', function (req, res) {
     var publicID = req.body.publicID;
     if (typeof publicID === 'undefined') {
         res.status(400);
@@ -171,7 +170,7 @@ router.post('/mediaID', function (req, res, next) {
 
 
 /* POST /instagram/postDetails. */
-router.post('/postDetails', function (req, res, next) {
+router.post('/postDetails', function (req, res) {
     var publicID = req.body.publicID;
     if (typeof publicID === 'undefined') {
         res.status(400);
@@ -229,6 +228,7 @@ router.post('/postDetails', function (req, res, next) {
                         var json = JSON.parse(body);
                         res.status(200);
                         res.setHeader('Access-Control-Allow-Origin', '*');
+                        //noinspection JSUnresolvedVariable
                         res.send(JSON.stringify({
                             meta: {
                                 code: 200
@@ -242,6 +242,7 @@ router.post('/postDetails', function (req, res, next) {
                             }
                         }));
                         res.end();
+                        //noinspection JSUnresolvedVariable
                         dbcs.instagramPostDetails.insert({
                             publicID: publicID,
                             mediaID: json.media_id,
@@ -257,5 +258,5 @@ router.post('/postDetails', function (req, res, next) {
         });
     }
 });
-module.exports = router;
 
+module.exports = router;

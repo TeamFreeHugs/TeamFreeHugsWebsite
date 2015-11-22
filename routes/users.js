@@ -18,9 +18,6 @@ router.post('/signup', function (req, res, next) {
         });
         return;
     }
-    if (!req.body.name) {
-        req.body.name = req.body.username;
-    }
     if (!req.body.password) {
         res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/signup', {
             title: 'Sign up with Team Free Hugs',
@@ -44,7 +41,6 @@ router.post('/signup', function (req, res, next) {
     }
 
     AM.addNewAccount({
-        name: req.body.name,
         pass: req.body.password,
         email: req.body.email,
         user: req.body.username
@@ -121,6 +117,92 @@ router.post('/logout', function (req, res) {
             msg: 'Ok'
         }));
         res.end();
+    });
+});
+
+
+router.get(/\/user\/\w+\/?$/, function (req, res) {
+    var name = req.url.match(/user\/(\w+)\/?/)[1];
+    dbcs.users.findOne({name: name}, function (err, user) {
+        if (!user) {
+            res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404', {
+                message: 'Not Found',
+                error: {},
+                user: req.session.user
+            });
+            return;
+        }
+        var name = user.name;
+        var joinDetails = user.date.split(/(\w+) (\d+\w+) (\d+), /).filter(function (e) {
+            return !!e;
+        });
+        res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/userPage', {
+            title: 'User ' + name,
+            name: name,
+            monthJoined: joinDetails[0],
+            dateJoined: joinDetails[1],
+            yearJoined: joinDetails[2],
+            imgURL: user.imgURL,
+            isOwn: !req.session.user || req.session.user.name === name,
+            user: req.session.user,
+            aboutMe: user.aboutMe
+        });
+    });
+});
+
+
+router.get(/\/user\/\w+\/edit\/?$/, function (req, res) {
+    var name = req.url.match(/user\/(\w+)\/?/)[1];
+    dbcs.users.findOne({name: name}, function (err, user) {
+        if (!user || !req.session.user || req.session.user.name === name) {
+            res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404', {
+                message: 'Not Found',
+                error: {},
+                user: req.session.user
+            });
+            return;
+        }
+        var name = user.name;
+        res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/editUser', {
+            title: 'User ' + name,
+            name: name,
+            imgURL: user.imgURL,
+            user: req.session.user,
+            aboutMe: user.aboutMe
+        });
+    });
+});
+
+
+router.post(/\/user\/\w+\/edit\/?$/, function (req, res) {
+    var name = req.url.match(/user\/(\w+)\/?/)[1];
+    dbcs.users.findOne({name: name}, function (err, user) {
+        if (!user || !req.session.user || req.session.user.name === name) {
+            res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404', {
+                message: 'Not Found',
+                error: {},
+                user: req.session.user
+            });
+            return;
+        }
+        var name = user.name;
+        AM.updateAccount({
+            user: user.name,
+            name: user.name,
+            email: user.email,
+            imgURL: user.imgURL,
+            aboutMe: req.body.aboutMe || '',
+            pass: req.body.password || ''
+        }, function () {
+            res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/editUser', {
+                title: 'User ' + name,
+                name: name,
+                imgURL: user.imgURL,
+                user: req.session.user,
+                aboutMe: req.body.aboutMe,
+                message: 'Profile updated successfully!'
+            });
+        });
     });
 });
 

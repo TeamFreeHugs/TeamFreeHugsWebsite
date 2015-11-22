@@ -1,0 +1,32 @@
+extends ../layout
+
+block head
+    link(rel='stylesheet' href='/stylesheets/editUser.css')
+    script(src='/javascript/editUser.js')
+    script="window.userImgURL='" + user.imgURL + "'"
+    script="window.gravatarImgURL='http://gravatar.com/avatar/" + user.emailHash + "'"
+    script="window.aboutMe='" + encodeURI(aboutMe) + "'"
+    script.
+        $(function () {
+            $('#aboutMe').text(decodeURI(aboutMe));
+        });
+
+block content
+    if typeof message !== 'undefined'
+        h1=message
+    h2
+        a(href="/users/user/" + name style="text-decoration: none") Edit your profile
+    h3 Public Information
+    form(method="POST")#editForm
+        label About me
+        br
+        br
+        textarea(name="aboutMe")#aboutMe=user.aboutMe
+        br
+        br
+        label Password:
+        input(name="password" type="password")#password
+        div(style="margin-left: 10px; display: inline-block;")#passwordStrength
+        br
+        br
+        input(type="submit" value="Update!")

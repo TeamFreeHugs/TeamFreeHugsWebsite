@@ -72,13 +72,11 @@ html
                 };
                 $(window).keydown('ctrl+shift+d', toggleSidebar);
                 $('textarea').keydown('ctrl+shift+d', toggleSidebar);
-
             });
         script(src='/javascript/jQuery.hotkeys.js')
         script(src="/javascript/helper.js")
-        script(src='http://crypto-js.googlecode.com/svn/tags/3.0.2/build/rollups/md5.js')
-        if typeof user !== 'undefined'
-            script="$(function(){$('#userImg').attr('src', 'http://www.gravatar.com/avatar/' + CryptoJS.MD5('" + user.email + "').toString())});"
+        script(src="/javascript/chat-helper.js")
+        script(src='/javascript/CryptoJS.js')
 
         style.
             #footer {
@@ -90,7 +88,6 @@ html
             }
 
         link(rel='stylesheet' href='/stylesheets/chatRoom.css')
-        link(rel='stylesheet' href='/stylesheets/markdown.css')
         script(src='/javascript/chat-master.js')
         if typeof user !== 'undefined'
             script(src='/javascript/chat-loggedin.js')
@@ -110,8 +107,9 @@ html
     body
         div#sidebar-left(data-showing='false')
             if typeof user !== 'undefined'
-                img(width=32 height=32)#userImg
-                h4#usernameTitle="Logged in as " + user.name
+                img(width=32 height=32 src=user.imgURL)#userImg
+                h4#usernameTitle
+                    a(href="/users/user/" + user.name)="Logged in as " + user.name
             p.link
                 a(href="/") Home
             if typeof user === 'undefined'
@@ -164,6 +162,7 @@ html
                 div.inputWrap(style="margin-left: 5px;")
                     if typeof user !== 'undefined'
                         img(width=80 height=80 src='http://www.gravatar.com/avatar/' + emailHash)#userChatImg
+                        div#pingPopup
                         textarea#messageInput
                         div#buttonContainer(style='display: inline-block;')
                             button#send Send

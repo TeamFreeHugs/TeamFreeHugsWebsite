@@ -6,13 +6,12 @@ html
         link(rel='stylesheet', href='/stylesheets/style.css')
         link(rel='shortcut icon', type='image/x-icon', href='/favicon.ico')
         link(rel='apple-touch-icon', type='image/png', href='/favicon.png')
+        link(rel='stylesheet' href='/stylesheets/markdown.css')
         script(src='/javascript/jQuery.min.js')
         script(src='/javascript/main.js')
         script(src='/javascript/jQuery.hotkeys.js')
         script(src="/javascript/helper.js")
-        script(src='http://crypto-js.googlecode.com/svn/tags/3.0.2/build/rollups/md5.js')
-        if typeof user !== 'undefined'
-            script="$(function(){$('#userImg').attr('src', 'http://www.gravatar.com/avatar/' + CryptoJS.MD5('" + user.email + "').toString())});"
+        script(src='/javascript/CryptoJS.js')
 
         block head
 body
@@ -27,8 +26,9 @@ body
             div.dropdownBar
     div#sidebar-left(data-showing='false')
         if typeof user !== 'undefined'
-            img(width=32 height=32)#userImg
-            h4#usernameTitle="Logged in as " + user.name
+            img(width=32 height=32 src=user.imgURL)#userImg
+            h4#usernameTitle
+                a(href="/users/user/" + user.name)="Logged in as " + user.name
         p.link
             a(href="/") Home
         if typeof user === 'undefined'

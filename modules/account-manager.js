@@ -54,11 +54,14 @@ exports.addNewAccount = function (newData, callback) {
                         // append date stamp when record was created //
                         newData.date = moment().format('MMMM Do YYYY, h:mm:ss a');
                         newData.emailHash = require('md5')(newData.email);
+                        newData.imgURL = 'http://gravatar.com/avatar/' + newData.emailHash;
+                        newData.aboutMe = '';
                         users.insert(newData, {safe: true}, callback);
                         chatUsers.insert({
-                            name: newData.name,
+                            name: newData.user,
                             email: newData.email,
                             emailHash: newData.emailHash,
+                            imgURL: newData.imgURL,
                             key: require('md5')(newData.email + newData.date + generateSalt()),
                             rooms: []
                         }, {safe: true});
@@ -73,7 +76,7 @@ exports.updateAccount = function (newData, callback) {
     users.findOne({user: newData.user}, function (e, o) {
         o.name = newData.name;
         o.email = newData.email;
-        o.country = newData.country;
+        o.aboutMe = newData.aboutMe;
         newData.emailHash = require('md5')(newData.email);
         if (newData.pass == '') {
             users.save(o, {safe: true}, function (err) {
@@ -171,12 +174,12 @@ var validatePassword = function (plainPass, hashedPass, callback) {
 
 var getObjectId = function (id) {
     return new require('mongodb').ObjectID(id);
-}
+};
 
 var findById = function (id, callback) {
     users.findOne({_id: getObjectId(id)},
         function (e, res) {
-            if (e) callback(e)
+            if (e) callback(e);
             else callback(null, res)
         });
 };
