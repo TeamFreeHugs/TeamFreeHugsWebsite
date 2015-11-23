@@ -33,7 +33,7 @@ router.post('/signup', function (req, res, next) {
         return;
     }
 
-    if (req.body.username.contains(' ')) {
+    if (req.body.username.indexOf(' ') != -1) {
         res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/signup', {
             title: 'Sign up with Team Free Hugs',
             error: 'Username cannot contain spaces!'
@@ -43,7 +43,8 @@ router.post('/signup', function (req, res, next) {
     AM.addNewAccount({
         pass: req.body.password,
         email: req.body.email,
-        user: req.body.username
+        user: req.body.username,
+        name: req.body.username
     }, function (e) {
         if (e === 'username-taken') {
             res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/signup', {

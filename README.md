@@ -12,7 +12,9 @@ This few things were used in this project:
 
 4. jQuery-hotkeys by @jeresig. [Link here](https://github.com/jeresig/jquery.hotkeys)
 
-#HOW TO RUN
+5. jQuery-highlight by @bartaz. [Link here](https://github.com/bartaz/sandbox.js/blob/master/jquery.highlight.js)
+
+/#HOW TO RUN
 1\. Run this code: (`sudo` required!)
 
     wget -qO- https://deb.nodesource.com/setup_4.x | sudo bash -

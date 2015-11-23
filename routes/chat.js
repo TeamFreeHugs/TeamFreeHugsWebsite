@@ -10,6 +10,7 @@ var wsRooms = {};
 
 wsServer.on('connection', function (ws) {
     var location = url.parse(ws.upgradeReq.url, true).path.toString();
+    var userKey = url.parse(ws.upgradeReq.url, true).query.key;
     if (location.match(/\/rooms\/\d+/)) {
         var roomID = parseInt(location.match(/\d+/)[0]);
         dbcs.chatRooms.findOne({roomId: roomID}, function (err, room) {
@@ -22,6 +23,18 @@ wsServer.on('connection', function (ws) {
             }
             if (!wsRooms[roomID])
                 wsRooms[roomID] = [];
+            if (userKey) {
+                dbcs.chatUsers.findOne({key: userKey}, function (err, user) {
+                    if (!user) {
+                        ws.send(JSON.stringify({
+                            error: 'Invalid key!'
+                        }));
+                        ws.close();
+                        return;
+                    }
+                    ws.username = user.name;
+                });
+            }
             wsRooms[roomID].push(ws);
         });
     }
@@ -155,7 +168,7 @@ router.get(/\/rooms\/\d+(?:\/(?:\w+|\-)+)?/, function (req, res) {
                             name: room.name,
                             description: room.description,
                             roomLink: '/chat/rooms/' + room.roomId + '/' + getRoomName(room.name),
-                            emailHash: user.emailHash,
+                            emailHash: req.session.user.emailHash,
                             key: user.key
                         });
                     });
@@ -190,6 +203,16 @@ setInterval(function () {
         }
     }
 }, 1000);
+
+function canStringPingUser(pingString, userToPing) {
+    pingString = pingString.toLowerCase();
+    userToPing = userToPing.toLowerCase();
+    if (pingString.startsWith('@'))
+        pingString = pingString.substr(1);
+    if (pingString.length < 3)
+        return false;
+    return !!userToPing.match(new RegExp(pingString.replace(/\./, '\\.').replace(/\(/, '\\(').replace(/-/, '\\-')))
+}
 
 router.post(/\/rooms\/\d+\/messages\/add\/?$/, function (req, res) {
     if (!req.body.key) {
@@ -244,6 +267,33 @@ router.post(/\/rooms\/\d+\/messages\/add\/?$/, function (req, res) {
                     senderImg: user.imgURL,
                     messageID: count
                 }));
+                var pings = req.body.text.match(/@\w+/g);
+                if (pings)
+                    pings.forEach(function (ping) {
+                        //Find user in room
+                        dbcs.chatUsers.find({rooms: {$in: [roomID]}}, function (err, users) {
+                            users.each(function (e, foundUser) {
+                                if (!foundUser)
+                                    return;
+                                if (foundUser.name === user.name)
+                                    return;
+                                if (canStringPingUser(ping, foundUser.name)) {
+                                    if (wsRooms[roomID])
+                                        wsRooms[roomID].forEach(function (websocket) {
+                                            if (websocket.username) {
+                                                if (websocket.username === foundUser.name) {
+                                                    websocket.send(JSON.stringify({
+                                                        eventType: 4,
+                                                        messageID: count,
+                                                        content: req.body.text
+                                                    }));
+                                                }
+                                            }
+                                        });
+                                }
+                            });
+                        });
+                    });
             });
         });
     });

@@ -119,12 +119,21 @@ body {
   font-size: 15px;
 }
 #pingPopup {
-  top: -33px;
+  top: -39px;
   left: 101px;
-  height: 30px;
+  height: 36px;
   position: absolute;
   background-color: #fff;
-  width: 100px;
   border: 1px solid #000;
   display: none;
+}
+#calcTxtWidth {
+  position: absolute;
+  visibility: hidden;
+  height: auto;
+  width: auto;
+  white-space: nowrap;
+}
+.ping {
+  background: #f4c2c2;
 }

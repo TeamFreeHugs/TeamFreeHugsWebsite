@@ -7,3 +7,4 @@ function canStringPingUser(pingString, userToPing) {
         return false;
     return !!userToPing.match(new RegExp(pingString.replace(/\./, '\\.').replace(/\(/, '\\(').replace(/-/, '\\-')))
 }
+

@@ -7,7 +7,7 @@ function addMessage(sender, senderImg, content, messageID, isOut) {
                 $('<a>').text(sender).attr('href', '/users/' + sender)
             )
         ).append(
-            $('<div class="messageBubble' + (isOut ? ' messageOut' : '') + '">').attr('id', messageID).html(markdown(content))
+            $('<div class="messageBubble' + (isOut ? ' messageOut' : '') + '">').attr('id', 'message-' + messageID).html(markdown(content))
         ).append($('<hr>'))
     )
 }
@@ -35,7 +35,7 @@ function showPopupDialog(message) {
 }
 
 function createChatWS() {
-    var ws = new WebSocket('ws://' + location.hostname + ':4000/rooms/' + CHAT.room.id);
+    var ws = new WebSocket('ws://' + location.hostname + ':4000/rooms/' + CHAT.room.id + (!!CHAT.user.name ? '?key=' + key() : ''));
     ws.onmessage = function (msg) {
         var data = JSON.parse(msg.data);
         switch (data.eventType) {
@@ -72,6 +72,18 @@ function createChatWS() {
                     $('.userIconCard-' + data.user).remove();
                 });
                 break;
+            case 4:
+                //Ping, only works if user is logged in. Just check and be safe.
+                if (CHAT.user.name) {
+                    if (Notification.permission === "granted") {
+                        var notify = new Notification('You have been pinged!', {
+                            icon: '/favicon.png',
+                            body: data.content
+                        });
+                    }
+                }
+
+                break;
             case 1000:
                 //BROADCASTING!!!
                 showPopupDialog('Broadcast message: ' + data.message);
@@ -104,7 +116,7 @@ $(function () {
             wsRetries: 0
         }, roomUsers: {
             update: function () {
-                $.ajax({url: '../users', type: 'POST'}).done(function(data){
+                $.ajax({url: '../users', type: 'POST'}).done(function (data) {
                     data = JSON.parse(data);
                     CHAT.roomUsers.users = data;
                 });
@@ -154,7 +166,7 @@ $(function () {
                             .attr('height', 32)
                     ).attr('class', 'userIconCard-' + user.name)
                         .attr('title', user.name)
-                        .attr('href', '/users/' + user.name)
+                        .attr('href', '/users/user/' + user.name)
                 );
             }
         }

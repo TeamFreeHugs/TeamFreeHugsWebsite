@@ -91,6 +91,7 @@ html
         script(src='/javascript/chat-master.js')
         if typeof user !== 'undefined'
             script(src='/javascript/chat-loggedin.js')
+            script(src='/javascript/jQuery-highligher.js')
         else
             style.
                 #loginMsg {
@@ -182,6 +183,7 @@ html
 
         if typeof user !== 'undefined'
             input(type='hidden' value=key)#key
+            span#calcTxtWidth
         div#blockChat
         div#chatLoading
             h1="Loading " + name
