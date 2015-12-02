@@ -10,8 +10,7 @@ $(function () {
         clearTimeout(typingTimer);
     });
     $('#queryType').change(doneTyping);
-    if (!!$input.val().trim())
-        doneTyping();
+    doneTyping();
     function doneTyping() {
         var $input = $('#searchBar');
         $('.usersResult > *').remove();
@@ -26,22 +25,10 @@ $(function () {
             console.log(JSON.stringify(data));
             data.forEach(function (user) {
                 $('.usersResult').append(
-                    $('<div>').css({
-                        width: 500,
-                        height: 100,
-                        border: '1px solid #000000',
-                        display: 'block'
-                    }).append(
-                        $('<img>').attr('src', user.imgURL).css({
-                            width: 80,
-                            height: 80,
-                            transform: 'translate(12%, 12%)'
-                        })
+                    $('<div>').attr('class', 'userCard').append(
+                        $('<img>').attr('src', user.imgURL).attr('class', 'userCardImg')
                     ).append(
-                        $('<a>').text(user.name).attr('href', '/users/user/' + user.name).css({
-                            transform: 'translate(23%, -400%)',
-                            display: 'block'
-                        })
+                        $('<a>').text(user.name).attr('href', '/users/user/' + user.name).attr('class', 'userCardLink')
                     )
                 );
             });

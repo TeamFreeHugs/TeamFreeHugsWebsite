@@ -168,7 +168,6 @@ router.post('/find', function (req, res) {
     dbcs.users.find({name: nameQuery}, function (err, users) {
         var result = [];
         users.each(function (err, user) {
-            console.log(user);
             if (!!user) {
                 result.push({
                     name: user.name,
