@@ -1,29 +1,16 @@
 extends ../layout
 
 block head
-    script.
-        $(function () {
-            var typingTimer;
-            var doneTypingInterval = 1400;
-            var $input = $('#searchBar');
-            $input.on('keyup', function () {
-                clearTimeout(typingTimer);
-                typingTimer = setTimeout(doneTyping, doneTypingInterval);
-            });
-            $input.on('keydown', function () {
-                clearTimeout(typingTimer);
-            });
-            function doneTyping() {
-                $.ajax({
-                    type: 'POST',
-                    url: '/users',
-                    data: {
-                        usernameStart: $input.val()
-                    }
-                });
-            }
-        });
-
+    script(src='/javascript/users.js')
 
 block content
-    div.users
+    div.userSearch
+        h4 Search for a user:
+        fieldset
+            select#queryType
+                option(data-type=1) Username starts with
+                option(data-type=2) Username ends with
+                option(data-type=3) Username is
+            span &nbsp;&nbsp;&nbsp;&nbsp;
+            input#searchBar
+    div.usersResult

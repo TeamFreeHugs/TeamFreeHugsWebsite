@@ -326,21 +326,18 @@ router.post(/\/rooms\/\d+\/users\/?$/, function (req, res) {
     var roomID = parseInt(req.url.match(/\d+/).join(''));
     dbcs.chatUsers.find({rooms: {$in: [roomID]}}, function (err, users) {
         var output = {};
-        users.count(function (e, count) {
-            var found = 0;
-            users.each(function (err, user) {
-                if (found <= count && user) {
-                    output[user.name] = {
-                        name: user.name,
-                        profileImg: user.imgURL
-                    }
-                } else {
-                    res.status(200);
-                    res.send(JSON.stringify(output));
-                    res.end();
+        users.each(function (err, user) {
+            if (!!user) {
+                output[user.name] = {
+                    name: user.name,
+                    profileImg: user.imgURL
                 }
+            } else {
+                res.status(200);
+                res.send(JSON.stringify(output));
+                res.end();
+            }
 
-            });
         });
     });
 });
@@ -477,20 +474,15 @@ router.post('/messages/broadcast/', function (req, res) {
         throw404();
     } else
         dbcs.chatRooms.find({}, function (e, rooms) {
-            rooms.count(function (e, count) {
-                count--;
-                var found = 0;
-                rooms.each(function (e, room) {
-                    if (found <= count && !!room) {
-                        broadcastWSEvent(room.roomId, JSON.stringify({
-                            eventType: 1000,
-                            message: req.body.message
-                        }));
-                        found++;
-                    } else {
-                        res.render('computer/chat/broadcast');
-                    }
-                });
+            rooms.each(function (e, room) {
+                if (!!room) {
+                    broadcastWSEvent(room.roomId, JSON.stringify({
+                        eventType: 1000,
+                        message: req.body.message
+                    }));
+                } else {
+                    res.render('computer/chat/broadcast');
+                }
             });
         });
 });

@@ -14,7 +14,7 @@ This few things were used in this project:
 
 5. jQuery-highlight by @bartaz. [Link here](https://github.com/bartaz/sandbox.js/blob/master/jquery.highlight.js)
 
-/#HOW TO RUN
+#HOW TO RUN
 1\. Run this code: (`sudo` required!)
 
     wget -qO- https://deb.nodesource.com/setup_4.x | sudo bash -
@@ -37,3 +37,9 @@ This few things were used in this project:
     nodejs bin/www
     
 
+
+##Additional Thanks to:
+
+[http://colorpicker.com](http://www.colorpicker.com/) for their awesome [color chart!](http://www.colorpicker.com/color-chart/)
+
+[Berserk](http://stackexchange.com/users/3522053/berserk) for finding bugs in this

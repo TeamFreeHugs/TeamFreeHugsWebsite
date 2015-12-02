@@ -3,6 +3,11 @@ var expressSession = require('express-session');
 var AM = require('../modules/account-manager.js');
 var router = express.Router();
 
+
+router.get('/', function (req, res) {
+    res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/index', {title: 'Team Free Hugs Users'});
+});
+
 /* GET /users/signup */
 router.get('/signup', function (req, res, next) {
     if (typeof req.session.user !== 'undefined')
@@ -121,6 +126,63 @@ router.post('/logout', function (req, res) {
     });
 });
 
+function regexEscape(input) {
+    var escapes = ['.', '*', '+', '^', '$', '[', '(', '\\', '/', '-', '{'];
+    var escaped = '(\\' + escapes.join('|\\') + ')+';
+    return input.replace(new RegExp(escaped, 'g'), '\\$1');
+}
+
+router.post('/find', function (req, res) {
+    var type = req.body.type,
+        query = req.body.query || '';
+    if (!type) {
+        res.status(400);
+        res.header('Content-Type', 'text/json');
+        res.end(JSON.stringify({
+            error: 'No type!'
+        }));
+        return;
+    }
+    var nameQuery = null;
+    switch (parseInt(type)) {
+        case 1:
+            //Starts with
+            nameQuery = new RegExp('^' + regexEscape(query) + '.*', 'i');
+            break;
+        case 2:
+            //Ends with
+            nameQuery = new RegExp('.*' + regexEscape(query) + '$', 'i');
+            break;
+        case 3:
+            //Equals
+            nameQuery = query;
+            break;
+        default:
+            res.status(400);
+            res.send(JSON.stringify({
+                error: 'Unknown query type!'
+            }));
+            res.end();
+            return;
+    }
+    dbcs.users.find({name: nameQuery}, function (err, users) {
+        var result = [];
+        users.each(function (err, user) {
+            console.log(user);
+            if (!!user) {
+                result.push({
+                    name: user.name,
+                    imgURL: user.imgURL
+                });
+            } else {
+                res.status(200);
+                res.header('Content-Type', 'text/json');
+                res.send(JSON.stringify(result));
+                res.end();
+            }
+        });
+    });
+});
 
 router.get(/\/user\/\w+\/?$/, function (req, res) {
     var name = req.url.match(/user\/(\w+)\/?/)[1];
