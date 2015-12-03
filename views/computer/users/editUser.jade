@@ -15,7 +15,7 @@ block content
     if typeof message !== 'undefined'
         h1=message
     h2
-        a(href="/users/user/" + name style="text-decoration: none") Edit your profile
+        a(href="/users/current" style="text-decoration: none") Back
     h3 Public Information
     form(method="POST")#editForm
         label About me

@@ -11,6 +11,23 @@ router.get('/', function (req, res) {
     });
 });
 
+router.get('/current', function (req, res) {
+    if (!req.session.user) {
+        res.redirect('/users/login?continue=/current');
+    } else {
+        res.redirect('/users/user/' + req.session.user.name + '/');
+    }
+});
+
+router.get(/\/current\/\w+\/?$/, function (req, res) {
+    console.log('/users/user/' + req.session.user.name + '/' + req.url.split(/\/current\/(\w+)$/)[1]);
+    if (!req.session.user) {
+        res.redirect('/users/login?continue=' + req.url);
+    } else {
+        res.redirect('/users/user/' + req.session.user.name + '/' + req.url.split(/\/current\/(\w+)$/)[1]);
+    }
+});
+
 /* GET /users/signup */
 router.get('/signup', function (req, res, next) {
     if (typeof req.session.user !== 'undefined')
