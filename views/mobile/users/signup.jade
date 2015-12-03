@@ -1,0 +1,94 @@
+extends ../layout
+
+block head
+    script.
+        $(function () {
+            function center() {
+                $('#content').css({
+                    position: 'absolute',
+                    left: ($(window).width() / 2 - getComputedStyle($('#content')[0]).width.match(/\d+/) / 2)
+                });
+            }
+
+            center();
+            addEventListener('resize', center, false);
+            function checkPassword() {
+                if ($('#password').val() !== $('#password2').val()) {
+                    $('#passwordError').text('Passwords do not match');
+                } else
+                    $('#passwordError').text('');
+            }
+
+            function checkStrength() {
+                //We use the password in #password
+                var strength = passStrength($('#password').val());
+                $('#passwordStrength').css('width', strength);
+            };
+            $('#password').on('keydown, keyup, input', checkPassword);
+            $('#password2').on('keydown, keyup, input', checkPassword);
+            $('#password').on('keydown, keyup, input', checkStrength);
+            $('#password2').on('keydown, keyup, input', checkStrength);
+            $('#signupForm').submit(function (e) {
+                if ($('#password').val() !== $('#password2').val()) {
+                    alert('Password does not match');
+                    e.preventDefault();
+                    return false;
+                }
+                if (!$('#password').val().match(/\d/)) {
+                    alert('Password must contain at least 1 number');
+                    e.preventDefault();
+                    return false;
+                }
+                if (!$('#password').val().match(/[!@#\$%^&*\()\{}\[\]|\\;:'",\./?<>~`\-_+=]/)) {
+                    alert('Password must contain at least 1 special character');
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            if (getQueryString('continue')) {
+                $('#signupForm').append($('<input>').attr('name', 'referrer').val(getQueryString('continue')).attr('type', 'hidden'));
+                $('#loginLink').attr('href', $('#loginLink').attr('href') + '?continue=' + getQueryString('continue'));
+                $('#signupForm').attr('action', $('#signupForm').attr('action') + location.search);
+            }
+        });
+    style.
+        #content {
+            padding-top: 20px;
+        }
+
+        #passwordStrength {
+            display: block;
+            background-color: green;
+            height: 12px;
+        }
+
+        #signupForm label {
+            padding-right: 7px;
+        }
+
+block content
+    if typeof error !== 'undefined'
+        h1= error
+    form(method="POST" action="/users/signup")#signupForm
+        label Username:
+        input(name="username" style="margin-left: 98px;")#username
+        br
+        br
+        label Password:
+        input(name="password" type="password" style="margin-left: 102px;")#password
+        div(style="margin-left: 10px; display: inline-block;")#passwordError
+        br
+        br
+        label Confirm password again:
+        input(type="password" style="margin-left: 13px;")#password2
+        div(style="margin-left: 10px; display: inline-block;")#passwordStrength
+        br
+        br
+        label Email:
+        input(type="email" name="email" style="margin-left: 130px;")#email
+        br
+        br
+        input(type="submit" value="Sign up")
+    h5
+        a(href="/users/login")#loginLink Have an account? Log in!

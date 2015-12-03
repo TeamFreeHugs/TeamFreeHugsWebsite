@@ -11,13 +11,6 @@ html
         script(src='/javascript/jQuery.mobile.min.js')
         meta(content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0', name='viewport')
         script(src="/javascript/helper.js")
-        style#ui-loader-remove.
-            .ui-loader {
-                display: none
-            }
-            .ui-mobile-rendering > body > * {
-                visibility: visible;
-            }
 block head
 body
     div#header
@@ -31,7 +24,33 @@ body
             div.dropdownBar
     div#sidebar-left(data-showing='false')
         if typeof user !== 'undefined'
-            h4="Logged in as " + user.name
+            img(width=32 height=32 src=user.imgURL)#userImg
+            h4#usernameTitle
+                a(href="/users/user/" + user.name)="Logged in as " + user.name
+        p.link
+            a(href="/") Home
+        if typeof user === 'undefined'
+            //User pages
+            p.link
+                a(href="/users/signup") Sign up
+            p.link
+                a(href="/users/login") Log in
+        else
+            script.remove.
+                $(function () {
+                    $('#logout').click(function (e) {
+                        e.preventDefault();
+                        $.post('/users/logout');
+                        location.reload();
+                    });
+                    $('.remove').remove();
+                });
+            p.link
+                a(href='#')#logout Logout
+        p.link
+            a(href="/chat") Chat
+        p.link
+            a(href="#" onclick="location.reload()") Reload Page
     div#content
         block content
 
@@ -40,6 +59,7 @@ body
             h4 Links
             div#links
                 a(href="/") Home
+                a(href="/chat") Chat
         div
             h5(style="display: inline-block" title="Totally copyrighted") Design copyrighted by Eyeballcode 2015
 

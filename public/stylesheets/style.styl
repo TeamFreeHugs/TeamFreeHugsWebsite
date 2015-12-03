@@ -13,8 +13,9 @@ a
   width 100vw
   height 80px
   background-color #CAE00D
-  position absolute
   top 0
+  z-index 100
+  position fixed
 
 #header > *
   margin 0
@@ -50,13 +51,11 @@ a
 #content
   position absolute
   top 80px
-  min-height calc(100vh - 80px - 140px)
+  min-height calc(100vh - 80px - 140px - 50px)
 
 #content > *
   padding-left 10px
-  word-break break-all
   padding-right 10px
-  word-wrap word-break
 
 body
   overflow-x hidden
@@ -108,5 +107,9 @@ body
   position absolute
   left 50px
 
-.link
+#usernameTitle > a
+  color #000000
+
+p.link > a
   margin-left 5px
+  color #000000

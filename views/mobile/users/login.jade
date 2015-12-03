@@ -1,0 +1,43 @@
+extends ../layout
+
+block head
+    script.
+        $(function () {
+            $('#content').css({
+                position: 'absolute',
+                left: ($(window).width() / 2 - getComputedStyle($('#content')[0]).width.match(/\d+/) / 2)
+            });
+            if (getQueryString('continue')) {
+                $('#loginForm').append($('<input>').attr('name', 'referrer').val(getQueryString('continue')).attr('type', 'hidden'));
+                $('#signupLink').attr('href', $('#signupLink').attr('href') + '?continue=' + getQueryString('continue'));
+                $('#loginForm').attr('action', $('#loginForm').attr('action') + location.search);
+            }
+
+        });
+    style.
+        #signupForm label {
+            padding-right: 7px;
+        }
+
+        #content {
+            padding-top: 20px;
+        }
+
+
+
+block content
+    if typeof error !== 'undefined'
+        h1= error
+    form(method="POST" action="/users/login")#loginForm
+        label Username:
+        input(name="username" style="margin-left: 98px;")#username
+        br
+        br
+        label Password:
+        input(name="password" type="password" style="margin-left: 102px;")#password
+        br
+        br
+        input(type="submit" value="Log in")
+
+    h5
+        a(href="/users/signup")#signupLink No account? Sign up for one!
