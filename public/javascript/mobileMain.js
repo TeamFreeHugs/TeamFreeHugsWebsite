@@ -1,6 +1,5 @@
 $(function () {
-
-    $(document).swipeleft(function () {
+    $(document.body).swipeleft(function () {
         if ($('#sidebar-left').attr('data-showing') === 'true') {
             $('#dropdown').touchstart();
         }
