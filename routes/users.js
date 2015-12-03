@@ -5,7 +5,10 @@ var router = express.Router();
 
 
 router.get('/', function (req, res) {
-    res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/index', {title: 'Team Free Hugs Users'});
+    res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/index', {
+        title: 'Team Free Hugs Users',
+        user: req.session.user
+    });
 });
 
 /* GET /users/signup */

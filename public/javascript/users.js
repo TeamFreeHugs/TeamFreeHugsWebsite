@@ -22,6 +22,7 @@ $(function () {
                 type: $('#queryType :selected').attr('data-type')
             }
         }).done(function (data) {
+            $('.usersResult > *').remove();
             console.log(JSON.stringify(data));
             data.forEach(function (user) {
                 $('.usersResult').append(
