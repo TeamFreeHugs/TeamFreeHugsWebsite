@@ -15,7 +15,10 @@ html
             .ui-loader {
                 display: none
             }
-        block head
+            .ui-mobile-rendering > body > * {
+                visibility: visible;
+            }
+block head
 body
     div#header
         div#header-content
