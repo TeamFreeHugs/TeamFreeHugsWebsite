@@ -1,0 +1,54 @@
+html
+    head
+        if typeof title !== 'undefined'
+            title= title
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        link(rel='stylesheet', href='/stylesheets/chatRoomMobile.css')
+        link(rel='stylesheet', href='/stylesheets/jQuery.mobile.structure.css')
+        link(rel='icon', href='/favicon.ico')
+        script(src='/javascript/jQuery.min.js')
+        script(src='/javascript/mobileMain.js')
+        script(src='/javascript/jQuery.mobile.min.js')
+        meta(content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0', name='viewport')
+        script(src="/javascript/helper.js")
+    body
+        div#sidebar-left(data-showing='false')
+            if typeof user !== 'undefined'
+                img(width=32 height=32 src=user.imgURL)#userImg
+                h4#usernameTitle
+                    a(href="/users/user/" + user.name)="Logged in as " + user.name
+            p.link
+                a(href="/") Home
+            if typeof user === 'undefined'
+                //User pages
+                p.link
+                    a(href="/users/signup") Sign up
+                p.link
+                    a(href="/users/login") Log in
+            else
+                script.remove.
+                    $(function () {
+                        $('#logout').click(function (e) {
+                            e.preventDefault();
+                            $.post('/users/logout');
+                            location.reload();
+                        });
+                        $('.remove').remove();
+                    });
+                p.link
+                    a(href='#')#logout Logout
+            p.link
+                a(href="/chat") Chat
+            p.link
+                a(href="#" onclick="location.reload()") Reload Page
+        div#content
+            div#mainChat
+            div#inputBar
+                textarea#messageInput
+                div#buttonArea
+                    button#send Send
+                div#dropdown
+                    div.dropdownBar
+                    div.dropdownBar
+                    div.dropdownBar
+                    div.dropdownBar
