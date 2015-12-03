@@ -1,0 +1,18 @@
+extends ../layout
+
+block head
+    link(rel='stylesheet', href='/stylesheets/chatMobile.css')
+    script.
+        $(function () {
+            var roomsXML = $.ajax({
+                type: 'GET',
+                url: '/chat/rooms',
+                async: false
+            }).responseText;
+            $('.roomContainer').html(roomsXML);
+        });
+
+block content
+    div.roomContainer
+    div.roomControl
+        button(onclick="window.location = '/chat/rooms/add'") Add a new room
