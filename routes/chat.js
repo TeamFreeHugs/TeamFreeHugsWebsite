@@ -249,63 +249,62 @@ router.post(/\/rooms\/\d+\/messages\/add\/?$/, function (req, res) {
                 res.end();
                 return;
             }
-            dbcs.chatUsers.findOne({rooms: {$in: [roomID]}, name: user.name, key: key}, function (err, user2) {
-                if (!user2) {
-                    user.rooms.push(roomID);
-                    dbcs.chatUsers.save(user, {safe: true}, function () {
-                    });
-                    broadcastWSEvent(roomID, JSON.stringify({
-                        eventType: 2,
-                        user: user.name,
-                        userImgURL: user.imgURL
-                    }));
-                }
-                dbcs.chatMessages.insert({
-                    roomId: roomID,
-                    text: req.body.text,
-                    senderImgURL: user.imgURL,
-                    senderName: user.name
+            if (user.rooms.indexOf(roomID) === -1) {
+                user.rooms.push(roomID);
+                dbcs.chatUsers.save(user, {safe: true}, function () {
                 });
+                broadcastWSEvent(roomID, JSON.stringify({
+                    eventType: 2,
+                    user: user.name,
+                    userImgURL: user.imgURL
+                }));
+            }
 
-                res.status(200);
-                res.send('');
-                res.end();
-                dbcs.chatMessages.count(function (e, count) {
-                    broadcastWSEvent(roomID, JSON.stringify({
-                        eventType: 1,
-                        content: req.body.text,
-                        senderName: user.name,
-                        senderImg: user.imgURL,
-                        messageID: count
-                    }));
-                    var pings = req.body.text.match(/@\w+/g);
-                    if (pings)
-                        pings.forEach(function (ping) {
-                            //Find user in room
-                            dbcs.chatUsers.find({rooms: {$in: [roomID]}}, function (err, users) {
-                                users.each(function (e, foundUser) {
-                                    if (!foundUser)
-                                        return;
-                                    if (foundUser.name === user.name)
-                                        return;
-                                    if (canStringPingUser(ping, foundUser.name)) {
-                                        if (wsRooms[roomID])
-                                            wsRooms[roomID].forEach(function (websocket) {
-                                                if (websocket.username) {
-                                                    if (websocket.username === foundUser.name) {
-                                                        websocket.send(JSON.stringify({
-                                                            eventType: 4,
-                                                            messageID: count,
-                                                            content: req.body.text
-                                                        }));
-                                                    }
+            dbcs.chatMessages.insert({
+                roomId: roomID,
+                text: req.body.text,
+                senderImgURL: user.imgURL,
+                senderName: user.name
+            });
+
+            res.status(200);
+            res.send('');
+            res.end();
+            dbcs.chatMessages.count(function (e, count) {
+                broadcastWSEvent(roomID, JSON.stringify({
+                    eventType: 1,
+                    content: req.body.text,
+                    senderName: user.name,
+                    senderImg: user.imgURL,
+                    messageID: count
+                }));
+                var pings = req.body.text.match(/@\w+/g);
+                if (pings)
+                    pings.forEach(function (ping) {
+                        //Find user in room
+                        dbcs.chatUsers.find({rooms: {$in: [roomID]}}, function (err, users) {
+                            users.each(function (e, foundUser) {
+                                if (!foundUser)
+                                    return;
+                                if (foundUser.name === user.name)
+                                    return;
+                                if (canStringPingUser(ping, foundUser.name)) {
+                                    if (wsRooms[roomID])
+                                        wsRooms[roomID].forEach(function (websocket) {
+                                            if (websocket.username) {
+                                                if (websocket.username === foundUser.name) {
+                                                    websocket.send(JSON.stringify({
+                                                        eventType: 4,
+                                                        messageID: count,
+                                                        content: req.body.text
+                                                    }));
                                                 }
-                                            });
-                                    }
-                                });
+                                            }
+                                        });
+                                }
                             });
                         });
-                });
+                    });
             });
         });
     });
