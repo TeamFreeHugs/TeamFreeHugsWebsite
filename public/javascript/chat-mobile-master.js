@@ -45,7 +45,7 @@ function createChatWS() {
             case 1:
                 //New message!
                 addMessage(data.senderName, data.senderImg, data.content, data.messageID, (data.senderName === CHAT.user.name))
-                $("#mainChat").animate({ scrollTop: $('.messageWrap').height() * $('.messageWrap').length}, 0);
+                $("#mainChat").animate({scrollTop: $('.messageWrap').height() * $('.messageWrap').length}, 0);
                 break;
             case 2:
                 //User joined
