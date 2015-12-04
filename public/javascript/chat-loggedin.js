@@ -19,7 +19,8 @@ $(function () {
         }
     });
 
-    $('#messageInput').keydown('ctrl+enter', function (e) {
+    $('#messageInput').keydown('enter', function (e) {
+        e.preventDefault();
         $('#send').click();
     });
     $('#messageInput').on('keydown', function (e) {
