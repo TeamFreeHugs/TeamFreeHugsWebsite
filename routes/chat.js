@@ -249,8 +249,8 @@ router.post(/\/rooms\/\d+\/messages\/add\/?$/, function (req, res) {
                 res.end();
                 return;
             }
-            dbcs.chatUsers.findOne({rooms: {$in: [roomID]}, name: user.name, key: key}, function (err, user) {
-                if (!user) {
+            dbcs.chatUsers.findOne({rooms: {$in: [roomID]}, name: user.name, key: key}, function (err, user2) {
+                if (!user2) {
                     user.rooms.push(roomID);
                     dbcs.chatUsers.save(user, {safe: true}, function () {
                     });
