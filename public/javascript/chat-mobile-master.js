@@ -8,7 +8,9 @@ function addMessage(sender, senderImg, content, messageID, isOut) {
                     transform: 'translate(20%, 50%)',
                     position: 'absolute'
                 })
-            )
+            ).css({
+                'padding-bottom': '5px'
+            })
         ).append(
             $('<div class="messageBubble' + (isOut ? ' messageOut' : '') + '">').attr('id', 'message-' + messageID).html(markdown(content))
         ).append($('<hr>'))
