@@ -9,8 +9,12 @@ html
         script(src='/javascript/jQuery.min.js')
         script(src='/javascript/mobileMain.js')
         script(src='/javascript/jQuery.mobile.min.js')
+        script(src='/javascript/chat-mobile-master.js')
         meta(content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0', name='viewport')
         script(src="/javascript/helper.js")
+        if typeof user !== 'undefined'
+            script(src='/javascript/chat-mobile-loggedin.js')
+
     body
         div#sidebar-left(data-showing='false')
             if typeof user !== 'undefined'
@@ -40,6 +44,8 @@ html
             p.link
                 a(href="/chat") Chat
             p.link
+                a(href="/users") Users
+            p.link
                 a(href="#" onclick="location.reload()") Reload Page
         div#content
             div#mainChat
@@ -52,3 +58,7 @@ html
                     div.dropdownBar
                     div.dropdownBar
                     div.dropdownBar
+        div(style='visibility: none;')
+            if typeof user !== 'undefined'
+                input(type='hidden' value=key)#key
+                span#calcTxtWidth

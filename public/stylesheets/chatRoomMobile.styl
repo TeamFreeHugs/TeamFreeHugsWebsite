@@ -1,10 +1,13 @@
 #mainChat
   display block
   height calc(100vh - 100px)
-  position fixed
+  position absolute
   top 0
   left 0
   width 100vw
+  overflow auto
+  padding-top 5px
+  transform translate(0%, -75px)
 
 #inputBar
   display block
@@ -34,3 +37,18 @@
 
 #buttonArea > *
   margin-top 10px
+
+.popup
+  width 100vw
+  min-height 100px
+  position fixed
+  top -100px
+  left 0
+  background-color #ffffff
+  -webkit-box-shadow 3px 3px 5px 6px #ccc
+  -moz-box-shadow 3px 3px 5px 6px #ccc
+  box-shadow 3px 3px 5px 6px #ccc
+  padding-bottom 5px
+
+.popup > *
+  margin-left 20px
