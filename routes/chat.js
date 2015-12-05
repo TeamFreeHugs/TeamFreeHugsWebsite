@@ -317,12 +317,20 @@ router.post(/\/rooms\/\d+\/messages\/add\/?$/, function (req, res) {
 
 router.post(/\/rooms\/\d+\/messages\/?$/, function (req, res) {
     var roomID = parseInt(req.url.match(/\d+/).join(''));
-    dbcs.chatMessages.find({roomId: roomID}, function (error, messages) {
-        var found = 0;
-        var limit = req.body.count || 50;
-        res.status(200);
+    var limit = req.body.count || 50;
+    dbcs.chatRooms.findOne({roomId: roomID}, function (err, room) {
+        if (!room) {
+            res.status(400);
+            res.send(JSON.stringify({
+                error: 'Room not found'
+            }));
+            res.end();
+            return;
+        }
         var returnObj = {};
-        messages.each(function (err, message) {
+        res.status(200);
+        var found = 0;
+        dbcs.chatMessages.find({roomId: roomID}).limit(limit).each(function (error, message) {
             if (!message || found === limit) {
                 res.send(JSON.stringify(returnObj));
                 res.end();
@@ -335,8 +343,9 @@ router.post(/\/rooms\/\d+\/messages\/?$/, function (req, res) {
             };
             found++;
         });
-    });
+    })
 });
+
 
 router.post(/\/rooms\/\d+\/users\/?$/, function (req, res) {
     var roomID = parseInt(req.url.match(/\d+/).join(''));

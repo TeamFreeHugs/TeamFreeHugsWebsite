@@ -39,7 +39,7 @@ $(function () {
                 var totalWidth = 0;
                 CHAT.roomUsers.forEach(function (user) {
                     if (canStringPingUser(currentWord, user.name)) {
-                        var nameLength = parseInt(getComputedStyle($('#calcTxtWidth').text(user.name)[0]).width.match(/\d+/));
+                        var nameLength = $('#calcTxtWidth').text(user.name).width();
                         $('#pingPopup').append($('<div>').append(
                             $('<img>').attr('src', user.profileImg).attr('width', 32).attr('height', 32).css({
                                 position: 'absolute',

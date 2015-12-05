@@ -4,7 +4,7 @@ function addMessage(sender, senderImg, content, messageID, isOut) {
             $('<div class="userCard">').append(
                 $('<img width="32" height="32">').attr('src', senderImg)
             ).append(
-                $('<a>').text(sender).attr('href', '/users/' + sender).css({
+                $('<a>').text(sender).attr('href', '/users/user/' + sender).css({
                     transform: 'translate(20%, 50%)',
                     position: 'absolute'
                 })
@@ -47,7 +47,7 @@ function createChatWS() {
             case 1:
                 //New message!
                 addMessage(data.senderName, data.senderImg, data.content, data.messageID, (data.senderName === CHAT.user.name))
-                $("#mainChat").animate({scrollTop: $('.messageWrap').height() * $('.messageWrap').length}, 0);
+                $("#mainChat").scrollTop($('.messageWrap').height() * $('.messageWrap').length + 100);
                 break;
             case 2:
                 //User joined
@@ -79,7 +79,7 @@ function createChatWS() {
                 break;
             case 4:
                 //Ping, only works if user is logged in. Just check and be safe.
-                if (CHAT.user.name) {
+                if (!!CHAT.user.name) {
                     if (Notification.permission === "granted") {
                         var notify = new Notification('You have been pinged!', {
                             icon: '/favicon.png',
@@ -149,7 +149,7 @@ $(function () {
             var message = messages[messageID];
             addMessage(message.senderName, message.senderImg, message.content, messageID, (message.senderName === CHAT.user.name));
         }
-        $("#mainChat").animate({scrollTop: $('.messageWrap').height() * $('.messageWrap').length}, 0);
+        $("#mainChat").scrollTop($('.messageWrap').height() * $('.messageWrap').length + 100);
         $('#blockChat, #chatLoading').remove();
     });
 

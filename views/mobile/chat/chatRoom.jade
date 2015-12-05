@@ -12,6 +12,7 @@ html
         script(src='/javascript/chat-mobile-master.js')
         meta(content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0', name='viewport')
         script(src="/javascript/helper.js")
+        script(src="/javascript/chat-helper.js")
         if typeof user !== 'undefined'
             script(src='/javascript/chat-mobile-loggedin.js')
 
@@ -51,6 +52,7 @@ html
             div#mainChat
             if typeof user !== 'undefined'
                 div#inputBar
+                    div#pingPopup
                     textarea#messageInput
                     div#buttonArea
                         button#send Send
@@ -60,9 +62,15 @@ html
                         div.dropdownBar
                         div.dropdownBar
             else
-                div#anonBar
+                div#inputBar
+                    div(style='display: inline-block;')#loginMsg
+                        p
+                            | You must be&nbsp;
+                            a(style='color: #000000' href='/users/login?continue=' + roomLink) Logged in
+                            |  In order to send messages.
 
-        div(style='visibility: none;')
+        div(style='color: #ffffff; background-color: #ffffff; position: fixed; bottom: 0; left: 0; z-index: -1')
+            //Hidden under input bar.
             if typeof user !== 'undefined'
                 input(type='hidden' value=key)#key
                 span#calcTxtWidth
