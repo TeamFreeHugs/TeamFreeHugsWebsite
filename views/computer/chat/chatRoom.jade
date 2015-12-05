@@ -30,18 +30,14 @@ html
         script(src='/javascript/jQuery.min.js')
         script.
             $(function () {
-                $(document.body).swipeleft(function () {
+
+                $(window).keydown('esc', function (e) {
                     if ($('#sidebar-left').attr('data-showing') === 'true') {
-                        $('#dropdown').touchstart();
-                    }
-                }).swiperight(function (e) {
-                    if ($('#sidebar-left').attr('data-showing') === 'false') {
-                        if (e.swipestart.coords[0] < screen.width / 3)
-                            $('#dropdown').touchstart();
+                        $('.dropdown').click();
                     }
                 });
 
-                $('#dropdown').touchstart(function (e) {
+                $('.dropdown').click(function (e) {
                     if ($('#sidebar-left').attr('data-showing') === 'false') {
                         $('#sidebar-left').stop().animate({
                             left: 0
@@ -56,8 +52,8 @@ html
                             position: 'fixed',
                             top: 0,
                             left: 0
-                        }).attr('id', 'display-block').touchstart(function () {
-                            $('#dropdown').touchstart();
+                        }).attr('id', 'display-block').click(function () {
+                            $('.dropdown').click();
                         }));
                     }
                     else {
@@ -69,6 +65,13 @@ html
 
                 });
 
+
+                var toggleSidebar = function (e) {
+                    e.preventDefault();
+                    $('.dropdown').click();
+                };
+                $(window).keydown('ctrl+shift+d', toggleSidebar);
+                $('textarea').keydown('ctrl+shift+d', toggleSidebar);
             });
         script(src='/javascript/jQuery.hotkeys.js')
         script(src="/javascript/helper.js")

@@ -32,7 +32,7 @@ wsServer.on('connection', function (ws) {
                         ws.send(JSON.stringify({
                             error: 'Invalid key!'
                         }));
-                          console.log('GET ' + url.pathname + ' 400');
+                        console.log('GET ' + url.pathname + ' 400');
                         ws.close();
                         return;
                     }
