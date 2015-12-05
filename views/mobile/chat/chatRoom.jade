@@ -49,15 +49,19 @@ html
                 a(href="#" onclick="location.reload()") Reload Page
         div#content
             div#mainChat
-            div#inputBar
-                textarea#messageInput
-                div#buttonArea
-                    button#send Send
-                div#dropdown
-                    div.dropdownBar
-                    div.dropdownBar
-                    div.dropdownBar
-                    div.dropdownBar
+            if typeof user !== 'undefined'
+                div#inputBar
+                    textarea#messageInput
+                    div#buttonArea
+                        button#send Send
+                    div#dropdown
+                        div.dropdownBar
+                        div.dropdownBar
+                        div.dropdownBar
+                        div.dropdownBar
+            else
+                div#anonBar
+
         div(style='visibility: none;')
             if typeof user !== 'undefined'
                 input(type='hidden' value=key)#key

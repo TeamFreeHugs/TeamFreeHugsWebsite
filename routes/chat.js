@@ -1,6 +1,6 @@
 var express = require('express');
 var WebSocketServer = require('ws').Server;
-var url = require('url');
+var url2 = require('url');
 var wsServer = new WebSocketServer({
     port: 4000,
     server: global.server
@@ -8,9 +8,11 @@ var wsServer = new WebSocketServer({
 
 var wsRooms = {};
 
+
 wsServer.on('connection', function (ws) {
-    var location = url.parse(ws.upgradeReq.url, true).path.toString();
-    var userKey = url.parse(ws.upgradeReq.url, true).query.key;
+    var url = url2.parse(ws.upgradeReq.url, true);
+    var location = url.path.toString();
+    var userKey = url.query.key;
     if (location.match(/\/rooms\/\d+/)) {
         var roomID = parseInt(location.match(/\d+/)[0]);
         dbcs.chatRooms.findOne({roomId: roomID}, function (err, room) {
@@ -19,6 +21,7 @@ wsServer.on('connection', function (ws) {
                     error: 'No such room!'
                 }));
                 ws.close();
+                console.log('GET ' + url.pathname + ' 400');
                 return;
             }
             if (!wsRooms[roomID])
@@ -29,6 +32,7 @@ wsServer.on('connection', function (ws) {
                         ws.send(JSON.stringify({
                             error: 'Invalid key!'
                         }));
+                          console.log('GET ' + url.pathname + ' 400');
                         ws.close();
                         return;
                     }
@@ -36,6 +40,7 @@ wsServer.on('connection', function (ws) {
                 });
             }
             wsRooms[roomID].push(ws);
+            console.log('GET ' + url.pathname + ' 200');
         });
     }
 });
