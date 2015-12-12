@@ -1,15 +1,20 @@
 .roomcard {
-  width: 200px;
-  height: 200px;
-  border: 1px solid #000;
-  border-radius: 8px;
-  display: block;
-  margin-right: 10px;
-  margin-bottom: 5px;
+    width: 200px;
+    height: 200px;
+    margin-top: 16px;
+    margin-right: 16px;
+    margin-bottom: 16px;
+    border: 1px solid #aaaaaa;
+    border-radius: 8px;
+    display: inline-block;
+    box-shadow: 2px 2px 5px #888888;
 }
+
 .roomcard > h3 {
-  margin-left: 5px;
+    margin-left: 8px;
+    margin-top: 8px;
 }
+
 .roomContainer {
-  margin-top: 5px;
+    margin-top: 5px;
 }

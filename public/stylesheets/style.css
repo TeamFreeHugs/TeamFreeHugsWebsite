@@ -1,117 +1,142 @@
 body {
-  padding: 0;
-  margin: 0;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    padding: 0;
+    margin: 0;
+    font: 14px "Arial";
+    font-family: arial, helvetica, sans-serif;
 }
+
 a {
-  color: #00b7ff;
+    color: #00b7ff;
 }
+
 #header {
-  margin: 0;
-  padding: 0;
-  display: block;
-  width: 100vw;
-  height: 80px;
-  background-color: #cae00d;
-  top: 0;
-  z-index: 100;
-  position: fixed;
+    margin: 0;
+    padding-left: 16px;
+    display: block;
+    font: 14px "Amadeus";
+    color: white;
+    width: 100vw;
+    height: 80px;
+    background-color: #cddc39;
+    top: 0;
+    z-index: 100;
+    position: fixed;
 }
+
 #header > * {
-  margin: 0;
-  padding: 0;
+    margin: 0;
+    padding: 0;
 }
+
 #header-content > * {
-  padding-top: 5px;
-  padding-left: 5px;
+    padding-top: 5px;
+    padding-left: 5px;
 }
+
 #footer {
-  display: block;
-  width: 100vw;
-  height: 140px;
-  background-color: #3b3c36;
-  color: #fffaf0;
-  z-index: 1;
-  position: fixed;
-  bottom: 0;
+    display: block;
+    width: 100vw;
+    height: 140px;
+    background-color: #3b3c36;
+    color: #fffaf0;
+    z-index: 1;
+    position: fixed;
+    bottom: 0;
 }
+
 #content {
-  padding-bottom: 150px;
+    padding-bottom: 150px;
 }
+
 #links-container > * {
-  padding-top: 5px;
+    padding-top: 5px;
 }
+
 #footer > * {
-  padding-left: 8px;
+    padding-left: 8px;
 }
+
 #links > * {
-  padding-left: 10px;
-  border-left-color: #343434;
+    padding-left: 10px;
+    border-left-color: #343434;
 }
+
 #content {
-  position: absolute;
-  top: 80px;
-  min-height: calc(100vh - 80px - 140px - 50px);
+    position: absolute;
+    top: 80px;
+    min-height: calc(100vh - 80px - 140px - 50px);
 }
+
 #content > * {
-  padding-left: 10px;
-  padding-right: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
+
 body {
-  overflow-x: hidden;
+    overflow-x: hidden;
 }
+
 #dropdown {
-  width: 64px;
-  height: 64px;
-  border-radius: 12px;
-  display: block;
-  position: absolute;
-  right: 30px;
-  top: calc(80px / 2 - 68px / 2);
-  border: 2px solid #fff;
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    display: block;
+    position: absolute;
+    right: 30px;
+    top: calc(80px / 2 - 68px / 2);
+    border: 2px solid #fff;
 }
+
 .dropdownBar {
-  width: calc(100% - 10px);
-  height: 10px;
-  margin-left: 5px;
-  margin-right: 5px;
-  background-color: #fff;
-  margin-top: 5px;
-  display: block;
-  border-radius: 2px;
+    width: calc(100% - 10px);
+    height: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
+    background-color: #fff;
+    margin-top: 5px;
+    display: block;
+    border-radius: 2px;
 }
+
 #sidebar-left {
-  height: 100vh;
-  width: 300px;
-  display: block;
-  background-color: #b284be;
-  z-index: 101;
-  position: fixed;
-  top: 0;
-  left: -300px;
+    height: 100vh;
+    width: 300px;
+    display: block;
+    background-color: #b284be;
+    z-index: 101;
+    position: fixed;
+    top: 0;
+    left: -300px;
 }
+
 #home {
-  color: #000;
-  text-decoration: none;
+    color: #000;
+    text-decoration: none;
 }
+
 #userImg {
-  margin-left: 10px;
+    margin-left: 10px;
 }
+
 #userImg,
 #usernameTitle {
-  display: inline-block;
+    display: inline-block;
 }
+
 #userImg {
-  margin-top: 10px;
+    margin-top: 10px;
 }
+
 #usernameTitle {
-  position: absolute;
-  left: 50px;
+    position: absolute;
+    left: 50px;
 }
+
 #usernameTitle > a {
-  color: #000;
+    color: #000;
 }
+
 p.link > a {
-  margin-left: 5px;
-  color: #000;
+    margin-left: 5px;
+    color: #000;
 }
