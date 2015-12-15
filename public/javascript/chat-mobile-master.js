@@ -176,4 +176,32 @@ $(function () {
             }
         }
     });
+    $(document.body).swipeleft(function (e) {
+        if ($('#sidebar-left').attr('data-showing') === 'true') {
+            $('#sidebar-left').stop().animate({
+                left: -300
+            }, 700).attr('data-showing', 'false');
+        } else if ($('#sidebar-right').attr('data-showing') === 'false') {
+            if (e.swipestart.coords[0] > screen.width / 3 * 2) {
+                $('#sidebar-right').stop().animate({
+                    right: 0
+                }, 700).attr('data-showing', 'true');
+
+            }
+        }
+        $('#display-block').remove();
+    }).swiperight(function (e) {
+        if ($('#sidebar-left').attr('data-showing') === 'false' && $('#sidebar-right').attr('data-showing') === 'false') {
+            if (e.swipestart.coords[0] < screen.width / 3) {
+                $('#sidebar-left').stop().animate({
+                    left: 0
+                }, 700).attr('data-showing', 'true');
+            }
+        } else if ($('#sidebar-right').attr('data-showing') === 'true') {
+            $('#sidebar-right').stop().animate({
+                right: -300
+            }, 700).attr('data-showing', 'false');
+        }
+
+    });
 });

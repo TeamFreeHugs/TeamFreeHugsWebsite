@@ -48,6 +48,11 @@ html
                 a(href="/users") Users
             p.link
                 a(href="#" onclick="location.reload()") Reload Page
+        div#sidebar-right(data-showing='false')
+            h2#roomName=name
+            h5#roomDesc=description
+            div#usersContainer
+
         div#content
             div#mainChat
             if typeof user !== 'undefined'
