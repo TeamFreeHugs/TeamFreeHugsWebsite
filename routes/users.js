@@ -167,6 +167,11 @@ router.get(/\/confirm\/\w+$/, function (req, res) {
             });
         else if (code === 'no-such-token')
             res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404');
+        else if (code === 'token-used')
+            res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/confirm', {
+                title: 'Error while confirming account',
+                error: 2
+            });
     });
 });
 

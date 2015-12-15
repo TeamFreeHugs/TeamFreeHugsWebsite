@@ -94,6 +94,8 @@ exports.isValidConfirmLink = function (token, callback) {
             callback('no-such-token');
         } else if (+user.tokenExpire < +new Date) {
             callback('token-expired');
+        } else if (user.confirmed) {
+            callback('token-used');
         } else {
             callback('valid-token');
         }
