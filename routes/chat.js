@@ -131,8 +131,9 @@ function getRoomName(realName) {
 
 router.get('/rooms', function (req, res) {
     //res.status(200);
+    var limit = parseInt(url2.parse(req.url, true).query.number || 10);
     dbcs.chatRooms.find(function (error, rooms) {
-        rooms.limit(10).each(function (err, room) {
+        rooms.limit(limit).each(function (err, room) {
             if (!room) {
                 res.end();
                 return;

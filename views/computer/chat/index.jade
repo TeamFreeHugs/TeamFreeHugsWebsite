@@ -4,16 +4,32 @@ block head
     link(rel='stylesheet', href='/stylesheets/chat.css')
     script.
         $(function () {
-            var roomsXML = $.ajax({
-                type: 'GET',
-                url: '/chat/rooms',
-                async: false
-            }).responseText;
-            $('.roomContainer').html(roomsXML);
+            var typingTimer;
+            var doneTypingInterval = 600;
+            var $input = $('#roomCount');
+            $input.on('keyup', function () {
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(doneTyping, doneTypingInterval);
+            });
+            $input.on('keydown', function () {
+                clearTimeout(typingTimer);
+            });
+            doneTyping();
+            function doneTyping() {
+                var roomsXML = $.ajax({
+                    type: 'GET',
+                    url: '/chat/rooms',
+                    data: {number: $('#roomCount').val() || 10},
+                    async: false
+                }).responseText;
+                $('.roomContainer').html(roomsXML);
+            }
         });
 
 block content
     h2="Rooms"
+    label Number of rooms:
+    input(type='number' style='margin-left: 10px;' value=10 id='roomCount')
     hr
     div.roomContainer
     div.roomControl
