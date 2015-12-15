@@ -132,18 +132,12 @@ function getRoomName(realName) {
 router.get('/rooms', function (req, res) {
     //res.status(200);
     dbcs.chatRooms.find(function (error, rooms) {
-        var found = 0;
-        rooms.each(function (err, room) {
+        rooms.limit(10).each(function (err, room) {
             if (!room) {
                 res.end();
                 return;
             }
-
-            if (found > 10) {
-                res.end();
-                return;
-            }
-
+            var found = room.roomId;
             //noinspection HtmlUnknownTarget
             var toSend = "<div class='roomcard' id='roomcard-" + found + "'>" +
                 "<h3><a style='text-decoration: none;' href='/chat/rooms/" + found + "/" + getRoomName(room.name) + "/'>" + room.name + "</a></h3>" +
