@@ -23,7 +23,7 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db1) {
 /* login validation methods */
 
 exports.manualLogin = function (user, pass, callback) {
-    users.findOne({user: user}, function (e, o) {
+    users.findOne({user: user, confirmed: true}, function (e, o) {
         if (o == null) {
             callback('user-not-found');
         } else {
@@ -56,6 +56,11 @@ exports.addNewAccount = function (newData, callback) {
                         newData.emailHash = require('md5')(newData.email);
                         newData.imgURL = 'http://gravatar.com/avatar/' + newData.emailHash;
                         newData.aboutMe = '';
+                        var today = new Date();
+                        var nextWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7);
+                        newData.confirmed = false;
+                        newData.confirmToken = generateSalt();
+                        newData.tokenExpire = nextWeek;
                         users.insert(newData, {safe: true}, callback);
                         chatUsers.insert({
                             name: newData.user,
@@ -63,11 +68,34 @@ exports.addNewAccount = function (newData, callback) {
                             emailHash: newData.emailHash,
                             imgURL: newData.imgURL,
                             key: require('md5')(newData.email + newData.date + generateSalt()),
-                            rooms: []
+                            rooms: [],
+                            confirmed: false
                         }, {safe: true});
+                        var data = require('fs').readFileSync('views/confirmEmail.jade').utf8Slice();
+                        console.log(data);
+                        data = data.replace(/\$\{USERNAME}/, newData.user).replace(/\$\{TOKEN}/, newData.confirmToken);
+                        transporter.sendMail({
+                            from: 'Team Free Hugs <teamfreehugs@teamfreehugs.com>',
+                            to: newData.email,
+                            subject: 'Welcome to Team Free Hugs, ' + newData.user,
+                            html: require('jade').compile(data, {})()
+                        }, function (error, info) {
+                        });
                     });
                 }
             });
+        }
+    });
+};
+
+exports.isValidConfirmLink = function (token, callback) {
+    users.findOne({confirmToken: token}, function (err, user) {
+        if (!user) {
+            callback('no-such-token');
+        } else if (+user.tokenExpire < +new Date) {
+            callback('token-expired');
+        } else {
+            callback('valid-token');
         }
     });
 };

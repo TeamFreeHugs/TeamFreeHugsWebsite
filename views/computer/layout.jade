@@ -7,6 +7,7 @@ html
         link(rel='shortcut icon', type='image/x-icon', href='/favicon.ico')
         link(rel='apple-touch-icon', type='image/png', href='/favicon.png')
         link(rel='stylesheet' href='/stylesheets/markdown.css')
+        link(rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto')
         script(src='/javascript/jQuery.min.js')
         script(src='/javascript/main.js')
         script(src='/javascript/jQuery.hotkeys.js')
@@ -42,8 +43,9 @@ body
                 $(function () {
                     $('#logout').click(function (e) {
                         e.preventDefault();
-                        $.post('/users/logout');
-                        //location.reload();
+                        $.ajax({url: '/users/logout', type: 'POST'}).done(function () {
+                            location.reload();
+                        });
                     });
                     $('.remove').remove();
                 });

@@ -146,6 +146,30 @@ router.post('/logout', function (req, res) {
     });
 });
 
+router.get(/\/confirm\/\w+$/, function (req, res) {
+    var confirmToken = require('url').parse(req.url).pathname.split(/\/confirm\/(\w+)$/).join('');
+    console.log(confirmToken);
+    AM.isValidConfirmLink(confirmToken, function (code) {
+        if (code === 'valid-token') {
+            res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/confirm', {
+                title: 'Confirm your Team Free Hugs Account'
+            });
+            dbcs.users.findOne({confirmToken: confirmToken}, function (err, user) {
+                user.confirmed = true;
+                dbcs.users.save(user, {safe: true}, function (err) {
+                });
+            });
+        }
+        else if (code === 'token-expired')
+            res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/confirm', {
+                title: 'Error while confirming account',
+                error: 1
+            });
+        else if (code === 'no-such-token')
+            res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404');
+    });
+});
+
 function regexEscape(input) {
     var escapes = ['.', '*', '+', '^', '$', '[', '(', '\\', '/', '-', '{'];
     var escaped = '(\\' + escapes.join('|\\') + ')+';

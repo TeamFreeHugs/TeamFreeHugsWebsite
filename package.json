@@ -22,6 +22,7 @@
     "moment": "2.10.3",
     "mongodb": "^2.0.47",
     "morgan": "~1.6.1",
+    "nodemailer": "^1.10.0",
     "request": "latest",
     "serve-favicon": "~2.3.0",
     "stylus": "0.42.3",
