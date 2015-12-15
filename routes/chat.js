@@ -50,16 +50,24 @@ var router = express.Router();
 
 /* GET /chat/ */
 router.get('/', function (req, res) {
-    res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/chat/index', {
-        title: 'Team Free Hugs Chat',
-        user: req.session.user
-    });
+    if (!!req.session.user)
+        dbcs.chatUsers.findOne({name: req.session.user.name}, function (err, user) {
+            res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/chat/index', {
+                title: 'Team Free Hugs Chat',
+                user: req.session.user,
+                chatUser: user
+            });
+        });
+    else
+        res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/chat/index', {
+            title: 'Team Free Hugs Chat',
+            user: req.session.user
+        });
 });
 
 
 /* GET /chat/ */
 router.get('/', function (req, res) {
-
     res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/chat/index', {
         title: 'Team Free Hugs Chat',
         user: req.session.user
@@ -153,6 +161,7 @@ router.get(/\/rooms\/\d+(?:\/(?:\w+|\-)+)?/, function (req, res) {
         dbcs.chatRooms.findOne({roomId: parseInt(req.url.split(/rooms\/(\d+)/)[1])}, function (e, room) {
             if (!room) {
                 //Room doesn't exist
+                res.status(404);
                 res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404', {
                     message: 'Not Found',
                     error: new Error('Not Found'),

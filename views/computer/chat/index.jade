@@ -18,3 +18,5 @@ block content
     div.roomContainer
     div.roomControl
         button(onclick="window.location = '/chat/rooms/add'") Add a new room
+    if typeof chatUser !== 'undefined'
+        input(type='hidden' value=chatUser.key)#key
