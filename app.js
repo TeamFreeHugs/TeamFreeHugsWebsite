@@ -50,6 +50,29 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
     db.createCollection('chatUsers', function (err, collection) {
         if (err) throw err;
         dbcs.chatUsers = collection;
+        collection.findOne({user: 'UniBot'}, function (err, unibot) {
+            if (!unibot) {
+                var keys = '0123456789abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ!@#$%^&8()[]{}\\|;:\'",./<>?-_=+';
+                var salt = '';
+                for (var i = 0; i < 100; i++) {
+                    var p = Math.floor(Math.random() * keys.length);
+                    salt += keys[p];
+                }
+                require('./modules/account-manager').addNewAccount({
+                    user: 'UniBot',
+                    name: 'UniBot',
+                    email: 'edwardyeung39@gmail.com',
+                    //Lol school email :D
+                    pass: salt
+                }, function () {
+                    collection.findOne({user: unibot}, function (err, unibot) {
+                        unibot.confirmed = true;
+                        unibot.realPass = salt;
+                        collection.save(unibot, {safe: true});
+                    });
+                });
+            }
+        });
     });
     db.createCollection('chatMessages', function (err, collection) {
         if (err) throw err;
