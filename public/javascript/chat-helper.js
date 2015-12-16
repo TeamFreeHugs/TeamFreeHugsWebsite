@@ -5,6 +5,6 @@ function canStringPingUser(pingString, userToPing) {
         pingString = pingString.substr(1);
     if (pingString.length < 3)
         return false;
-    return !!userToPing.match(new RegExp(pingString.replace(/\./, '\\.').replace(/\(/, '\\(').replace(/-/, '\\-')))
+    return !!userToPing.match(new RegExp(pingString.replace(/\./g, '\\.').replace(/\(/g, '\\(').replace(/-/g, '\\-')))
 }
 

@@ -24,7 +24,7 @@ module.exports = function (id) {
                         var command = parts[0];
                         var args = parts.slice(1);
                         if (typeof commands[command] !== 'undefined') {
-                            commands[command](args, room);
+                            commands[command](args, room, event);
                         } else {
                             room.sendMessage('@' + event.getSender().replace(/[ \\|{}\[\];:'",<.>\/?!@#$%^&*\(\)_\-+=]/g, '') + ': Command ' + command + ' is not found.');
                         }

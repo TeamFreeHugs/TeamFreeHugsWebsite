@@ -7,7 +7,11 @@ var killTypes = ['$1 was murdered',
 
 function randNum(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
-};
+}
+
+function toPingFormat(user) {
+    return user.toString().replace(/[ \\|{}\[\];:'",<.>\/?!@#$%^&*\(\)_\-+=]/g, '');
+}
 
 module.exports = {
     help: function (args, room) {
@@ -17,6 +21,19 @@ module.exports = {
             room.sendMessage('Kill who?');
         } else {
             room.sendMessage(killTypes[randNum(0, killTypes.length - 1)].replace(/\$1/g, args.join(' ')));
+        }
+    }, echo: function (args, room) {
+        if (args.length === 0)
+            room.sendMessage('Nothing to echo!');
+        else
+            room.sendMessage(args.join(' '));
+    }, coffee: function (args, room, event) {
+        room.sendMessage('*Sends coffee to @' + toPingFormat(event.getSender()) + '*');
+    }, toPingFormat: function (args, room) {
+        if (args.length === 0) {
+            room.sendMessage('Nothing!');
+        } else {
+            room.sendMessage('@' + toPingFormat(args));
         }
     }
 };

@@ -79,6 +79,7 @@ function MessageSentEvent(user, content, id) {
     };
     return this;
 }
+
 function Room(id, name, desc, key, host) {
     var websocket;
 
