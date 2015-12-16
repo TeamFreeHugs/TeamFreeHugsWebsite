@@ -1,8 +1,6 @@
-var websocket = require('ws');
+var WebSocket = require('ws');
 var requests = require('request');
 var jsdom = require('jsdom');
-var o_o = require('yield-yield');
-
 module.exports = function TFHCAPI(username, password, host, callback) {
     var userInfo = {
         host: host
@@ -63,7 +61,46 @@ module.exports = function TFHCAPI(username, password, host, callback) {
     return this;
 };
 
+function MessageSentEvent(user, content, id) {
+    this.getSender = function () {
+        return user;
+    };
+    this.getContent = function () {
+        return content;
+    };
+    this.getID = function () {
+        return id;
+    };
+    this.getType = function () {
+        return 1;
+    };
+    return this;
+}
 function Room(id, name, desc, key, host) {
+    var websocket;
+
+    var listeners = [];
+
+    function fireEvent(event) {
+        listeners.forEach(function (e) {
+            e(event)
+        });
+    }
+
+    function setupWS() {
+        websocket = new WebSocket('ws://' + host.replace(/(:\d+)?$/, '') + ':4000' + '/rooms/' + id);
+        websocket.on('message', function (data, flags) {
+            data = JSON.parse(data);
+            if (data.eventType === 1) {
+                fireEvent(new MessageSentEvent(data.senderName, data.content, data.messageID));
+            }
+        });
+        websocket.on('close', function () {
+            websocket = setupWS();
+        });
+    }
+
+    setupWS();
     this.getRoomID = function () {
         return id;
     };
@@ -115,6 +152,12 @@ function Room(id, name, desc, key, host) {
                 }
             }, function (err, resp, body) {
             });
+    };
+    this.watch = function (cb) {
+        if (typeof cb === 'function') {
+            listeners.push(cb);
+        } else
+            throw new Error('Not a function!');
     };
     return this;
 }
