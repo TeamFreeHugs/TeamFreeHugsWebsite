@@ -1,13 +1,24 @@
 var express = require('express');
 var WebSocketServer = require('ws').Server;
 var url2 = require('url');
+var unibot = require('../Chatbot-Unibot');
 var wsServer = new WebSocketServer({
     port: 4000,
     server: global.server
 });
 
 var wsRooms = {};
-
+require('mongodb').MongoClient.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
+    var chatRooms = db.collection('chatRooms');
+    chatRooms.find(function (err, rooms) {
+        rooms.each(function (err, e) {
+            if (!e)
+                return;
+            wsRooms[e.roomId] = [];
+            unibot(e.roomId);
+        });
+    });
+});
 
 wsServer.on('connection', function (ws) {
     var url = url2.parse(ws.upgradeReq.url, true);
@@ -118,8 +129,8 @@ router.post('/rooms/add', function (req, res) {
                 res.redirect('/chat/rooms/' + count + '/' + getRoomName(req.body.roomName));
                 res.end();
                 wsRooms[count] = [];
+                unibot(count);
             });
-
         });
     });
 

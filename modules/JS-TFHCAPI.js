@@ -5,37 +5,7 @@ module.exports = function TFHCAPI(username, password, host, callback) {
     var userInfo = {
         host: host
     };
-    requests.post({
-        url: 'http://' + host + '/users/login',
-        headers: {
-            'User-Agent': 'NodeJS'
-        },
-        form: {
-            username: username,
-            password: password,
-            referrer: '/chat/'
-        }
-    }, function (err, resp, body) {
-        if (err) throw err;
-        if (!resp.headers['set-cookie'])     throw new Error('Invalid credentials!');
-        requests.get({
-            url: 'http://' + host + '/chat/',
-            headers: {
-                'User-Agent': 'NodeJS',
-                'Cookie': resp.headers['set-cookie'][0]
-            }
-        }, function (err, resp, body) {
-            jsdom.env(body, [], function (err, window) {
-                var key = window.document.querySelector('#key');
-                if (!key) {
-                    throw new Error('Invalid credentials!');
-                }
-                userInfo.key = key.value;
-                if (callback)
-                    callback();
-            });
-        });
-    });
+
     this.getRoom = function (roomID, callback) {
         requests.get({
             url: 'http://' + host + '/chat/rooms/' + roomID,
@@ -58,6 +28,39 @@ module.exports = function TFHCAPI(username, password, host, callback) {
                 });
         });
     };
+    var me = this;
+    requests.post({
+        url: 'http://' + host + '/users/login',
+        headers: {
+            'User-Agent': 'NodeJS'
+        },
+        form: {
+            username: username,
+            password: password,
+            referrer: '/chat/'
+        }
+    }, function (err, resp, body) {
+        if (err) throw err;
+        if (!resp.headers['set-cookie'])
+            throw new Error('Invalid credentials!');
+        requests.get({
+            url: 'http://' + host + '/chat/',
+            headers: {
+                'User-Agent': 'NodeJS',
+                'Cookie': resp.headers['set-cookie'][0]
+            }
+        }, function (err, resp, body) {
+            jsdom.env(body, [], function (err, window) {
+                var key = window.document.querySelector('#key');
+                if (!key) {
+                    throw new Error('Invalid credentials!');
+                }
+                userInfo.key = key.value;
+                if (callback)
+                    callback(me);
+            });
+        });
+    });
     return this;
 };
 

@@ -6,20 +6,19 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 
-var routes = require('./routes/index');
-var instagram = require('./routes/instagram');
-var chat = require('./routes/chat');
-var users = require('./routes/users');
-var dev = require('./routes/dev');
-
 var mongo = require('mongodb').MongoClient;
-
 
 var MongoStore = require('connect-mongo')(session);
 
 var app = express();
 
 global.dbcs = {};
+
+var routes = require('./routes/index');
+var instagram = require('./routes/instagram');
+var chat = require('./routes/chat');
+var users = require('./routes/users');
+var dev = require('./routes/dev');
 
 function noop() {
 }
@@ -42,15 +41,7 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
     db.createCollection('users', function (err, collection) {
         if (err) throw err;
         dbcs.users = collection;
-    });
-    db.createCollection('chatRooms', function (err, collection) {
-        if (err) throw err;
-        dbcs.chatRooms = collection;
-    });
-    db.createCollection('chatUsers', function (err, collection) {
-        if (err) throw err;
-        dbcs.chatUsers = collection;
-        collection.findOne({user: 'UniBot'}, function (err, unibot) {
+        collection.findOne({name: 'UniBot'}, function (err, unibot) {
             if (!unibot) {
                 var keys = '0123456789abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ!@#$%^&8()[]{}\\|;:\'",./<>?-_=+';
                 var salt = '';
@@ -65,7 +56,7 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
                     //Lol school email :D
                     pass: salt
                 }, function () {
-                    collection.findOne({user: unibot}, function (err, unibot) {
+                    collection.findOne({name: 'UniBot'}, function (err, unibot) {
                         unibot.confirmed = true;
                         unibot.realPass = salt;
                         collection.save(unibot, {safe: true});
@@ -73,6 +64,15 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
                 });
             }
         });
+    });
+    db.createCollection('chatRooms', function (err, collection) {
+        if (err) throw err;
+        dbcs.chatRooms = collection;
+    });
+    db.createCollection('chatUsers', function (err, collection) {
+        if (err) throw err;
+        dbcs.chatUsers = collection;
+
     });
     db.createCollection('chatMessages', function (err, collection) {
         if (err) throw err;
