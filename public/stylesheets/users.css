@@ -1,0 +1,16 @@
+.userCard {
+  width: 500;
+  height: 100;
+  border: 1px solid #000;
+  display: block;
+}
+.userCardImg {
+  width: 80px;
+  height: 80px;
+  transform: translate(12%, 12%);
+}
+.userCardLink {
+  transform: translate(30%, -400%);
+  display: block;
+  max-width: 350px;
+}

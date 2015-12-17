@@ -2,9 +2,21 @@ var express = require('express');
 var WebSocketServer = require('ws').Server;
 var url2 = require('url');
 var unibot = require('../Chatbot-Unibot');
+var http = require('http');
+var colors = require('colors');
+var wsHttpServer = http.createServer(function (req, res) {
+    if (!req.url.match(/\/rooms\/\d+/)) {
+        res.writeHead(200);
+        console.log(req.method.toUpperCase() + ' :4000' + req.url + ' ' + colors.styles.green.open + '200' + colors.styles.green.close);
+        res.end('This is the TFHWebSite Chat Websocket server.');
+    } else {
+        res.writeHead(400);
+        console.log(req.method.toUpperCase() + ' :4000' + req.url + ' ' + colors.styles.yellow.open + '200' + colors.styles.yellow.close);
+        res.end('Looks like you are trying to request a chat room. Use a WebSocket instead.');
+    }
+}).listen(4000);
 var wsServer = new WebSocketServer({
-    port: 4000,
-    server: global.server
+    server: wsHttpServer
 });
 
 var wsRooms = {};
@@ -149,14 +161,13 @@ router.get('/rooms', function (req, res) {
                 res.end();
                 return;
             }
-            var found = room.roomId;
+            var roomID = room.roomId;
             //noinspection HtmlUnknownTarget
-            var toSend = "<div class='roomcard' id='roomcard-" + found + "'>" +
-                "<h3><a style='text-decoration: none;' href='/chat/rooms/" + found + "/" + getRoomName(room.name) + "/'>" + room.name + "</a></h3>" +
+            var toSend = "<div class='roomcard' id='roomcard-" + roomID + "'>" +
+                "<h3><a style='text-decoration: none;' href='/chat/rooms/" + roomID + "/" + getRoomName(room.name) + "/'>" + room.name + "</a></h3>" +
                 "<small style='margin-left: 10px;'>" + room.description + "</small>" +
                 "</div>";
             res.write(toSend);
-            found++;
         });
     });
 
