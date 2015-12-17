@@ -44,7 +44,7 @@ wsServer.on('connection', function (ws) {
                     error: 'No such room!'
                 }));
                 ws.close();
-                console.log('GET ' + url.pathname + ' 400');
+                console.log('GET :4000' + ws.upgradeReq.url + ' ' + colors.styles.yellow.open + '200' + colors.styles.yellow.close);
                 return;
             }
             if (!wsRooms[roomID])
@@ -55,7 +55,7 @@ wsServer.on('connection', function (ws) {
                         ws.send(JSON.stringify({
                             error: 'Invalid key!'
                         }));
-                        console.log('GET ' + url.pathname + ' 400');
+                        console.log('GET :4000' + ws.upgradeReq.url + ' ' + colors.styles.yellow.open + '200' + colors.styles.yellow.close);
                         ws.close();
                         return;
                     }
@@ -63,7 +63,7 @@ wsServer.on('connection', function (ws) {
                 });
             }
             wsRooms[roomID].push(ws);
-            console.log('GET ' + url.pathname + ' 200');
+            console.log('GET :4000' + ws.upgradeReq.url + ' ' + colors.styles.green.open + '200' + colors.styles.green.close);
         });
     }
 });
