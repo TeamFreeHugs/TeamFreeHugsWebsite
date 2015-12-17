@@ -43,9 +43,10 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
         dbcs.users = collection;
         collection.findOne({name: 'UniBot'}, function (err, unibot) {
             if (!!unibot) {
-                if (!unibot.realPass)
-                collection.findOneAndDelete({name: 'UniBot'});
-                unibot = null;
+                if (!unibot.realPass) {
+                    collection.findOneAndDelete({name: 'UniBot'});
+                    unibot = null;
+                } else return;Wh
             }
             if (!unibot) {
                 var keys = '0123456789abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ!@#$%^&8()[]{}\\|;:\'",./<>?-_=+';
