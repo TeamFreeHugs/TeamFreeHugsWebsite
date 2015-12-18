@@ -46,7 +46,7 @@ function createChatWS() {
         switch (data.eventType) {
             case 1:
                 //New message!
-                addMessage(data.senderName, data.senderImg, data.content, data.messageID, (data.senderName === CHAT.user.name))
+                addMessage(data.senderName, data.senderImg, data.content, data.messageID, (data.senderName === CHAT.user.name));
                 $("html,body").animate({scrollTop: $('.messageWrap').height() * $('.messageWrap').length + 100}, 0);
                 break;
             case 2:
