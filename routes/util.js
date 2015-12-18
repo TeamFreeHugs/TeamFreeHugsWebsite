@@ -1,6 +1,4 @@
 var express = require('express');
-var fs = require('fs');
-var request = require('request');
 var router = express.Router();
 
 router.post('/ip', function (req, res) {
