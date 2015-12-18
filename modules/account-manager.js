@@ -52,6 +52,7 @@ exports.addNewAccount = function (newData, callback) {
                         newData.emailHash = require('md5')(newData.email);
                         newData.imgURL = 'http://gravatar.com/avatar/' + newData.emailHash;
                         newData.aboutMe = '';
+                        newData.isMod = false;
                         var today = new Date();
                         var nextWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7);
                         newData.confirmed = false;

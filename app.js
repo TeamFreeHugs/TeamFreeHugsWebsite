@@ -12,6 +12,7 @@ var MongoStore = require('connect-mongo')(session);
 
 var app = express();
 
+
 global.dbcs = {};
 
 var routes = require('./routes/index');
@@ -21,7 +22,32 @@ var users = require('./routes/users');
 var dev = require('./routes/dev');
 var util = require('./routes/util');
 
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
 
+
+app.use(session({
+        secret: 'faeb4453e5d14fe6f6d04637f78077c76c73d1b4',
+        proxy: true,
+        resave: true,
+        saveUninitialized: true,
+        store: new MongoStore({host: 'localhost', port: 27017, db: 'TFHWebSite'})
+    })
+);
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(cookieParser());
+app.use(require('stylus').middleware(path.join(__dirname, '/public/stylesheets')));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(require('compression')());
+
+
+app.use(function (req, res, next) {
+    res.userAgent = req.headers['user-agent'].toString().toLowerCase();
+    next();
+});
 
 mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
     dbcs.db = db;
@@ -65,6 +91,7 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
                     collection.findOne({name: 'UniBot'}, function (err, unibot) {
                         unibot.confirmed = true;
                         unibot.realPass = salt;
+                        unibot.isMod = true;
                         collection.save(unibot, {safe: true});
                     });
                 });
@@ -98,31 +125,6 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
     });
 });
 
-app.use(function (req, res, next) {
-    res.userAgent = req.headers['user-agent'].toString().toLowerCase();
-    next();
-});
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-
-
-app.use(session({
-        secret: 'faeb4453e5d14fe6f6d04637f78077c76c73d1b4',
-        proxy: true,
-        resave: true,
-        saveUninitialized: true,
-        store: new MongoStore({host: 'localhost', port: 27017, db: 'TFHWebSite'})
-    })
-);
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(cookieParser());
-app.use(require('stylus').middleware(path.join(__dirname, '/public/stylesheets')));
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(require('compression')());
 
 app.use('/', routes);
 app.use('/instagram', instagram);
@@ -152,7 +154,6 @@ if (app.get('env') === 'development') {
             error: err,
             user: req.session.user
         });
-        console.log(err);
     });
 }
 

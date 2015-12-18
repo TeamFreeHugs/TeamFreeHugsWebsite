@@ -1,5 +1,4 @@
 var express = require('express');
-var expressSession = require('express-session');
 var AM = require('../modules/account-manager.js');
 var router = express.Router();
 
@@ -29,13 +28,13 @@ router.get(/\/current\/\w+\/?$/, function (req, res) {
 });
 
 /* GET /users/signup */
-router.get('/signup', function (req, res, next) {
+router.get('/signup', function (req, res) {
     if (typeof req.session.user !== 'undefined')
         res.redirect('/');
     res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/signup', {title: 'Sign up with Team Free Hugs'});
 });
 
-router.post('/signup', function (req, res, next) {
+router.post('/signup', function (req, res) {
     if (!req.body.username) {
         res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/signup', {
             title: 'Sign up with Team Free Hugs',
@@ -137,7 +136,7 @@ router.post('/login', function (req, res) {
 });
 
 router.post('/logout', function (req, res) {
-    req.session.destroy(function (e) {
+    req.session.destroy(function () {
         res.status(200);
         res.send(JSON.stringify({
             msg: 'Ok'
@@ -256,7 +255,8 @@ router.get(/\/user\/\w+\/?$/, function (req, res) {
             imgURL: user.imgURL,
             isOwn: !req.session.user || req.session.user.name === name,
             user: req.session.user,
-            aboutMe: user.aboutMe
+            aboutMe: user.aboutMe,
+            isMod: user.isMod
         });
     });
 });
@@ -273,7 +273,7 @@ router.get(/\/user\/\w+\/edit\/?$/, function (req, res) {
             });
             return;
         }
-        var name = user.name;
+        name = user.name;
         res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/editUser', {
             title: 'User ' + name,
             name: name,
@@ -296,7 +296,7 @@ router.post(/\/user\/\w+\/edit\/?$/, function (req, res) {
             });
             return;
         }
-        var name = user.name;
+        name = user.name;
         AM.updateAccount({
             user: user.name,
             name: user.name,

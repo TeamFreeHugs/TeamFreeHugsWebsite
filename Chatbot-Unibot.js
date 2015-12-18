@@ -8,6 +8,7 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db1) {
 });
 module.exports = function (id) {
     users.findOne({name: 'UniBot'}, function (err, unibot) {
+        console.log(unibot);
         new ChatAPI('UniBot', unibot.realPass, 'localhost:3000', function (client) {
             client.getRoom(id, function (err, room) {
                 room.join();

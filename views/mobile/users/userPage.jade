@@ -9,6 +9,6 @@ block head
 
 block content
     img(src=imgURL width=32 height=32 style='transform: translate(0%, 20%);')
-    h1(style='display: inline-block')='User ' + name
+    h1(style='display: inline-block')='User ' + name + (isMod ? '  ♦' : '')
     h4 About Me:
     div(style="margin-left: 10px; min-height: 100px;")#aboutMe
