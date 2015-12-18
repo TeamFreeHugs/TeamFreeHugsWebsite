@@ -19,9 +19,9 @@ var instagram = require('./routes/instagram');
 var chat = require('./routes/chat');
 var users = require('./routes/users');
 var dev = require('./routes/dev');
+var util = require('./routes/util');
 
-function noop() {
-}
+
 
 mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
     dbcs.db = db;
@@ -51,7 +51,7 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
             if (!unibot) {
                 var keys = '0123456789abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ!@#$%^&8()[]{}\\|;:\'",./<>?-_=+';
                 var salt = '';
-                for (var i = 0; i < 100; i++) {
+                for (var i = 0; i < 1000; i++) {
                     var p = Math.floor(Math.random() * keys.length);
                     salt += keys[p];
                 }
@@ -92,6 +92,10 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
         if (err) throw err;
         dbcs.dev = collection;
     });
+    db.createCollection('calendarEvents', function (err, collection) {
+        if (err) throw err;
+        dbcs.calendar = collection;
+    });
 });
 
 app.use(function (req, res, next) {
@@ -125,6 +129,7 @@ app.use('/instagram', instagram);
 app.use('/chat', chat);
 app.use('/users', users);
 app.use('/dev', dev);
+app.use('/util', util);
 
 
 // catch 404 and forward to error handler
@@ -139,7 +144,7 @@ app.use(function (req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-    app.use(function (err, req, res, next) {
+    app.use(function (err, req, res) {
         var status = err.status || 500;
         res.status(status);
         res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error' + status, {
@@ -153,7 +158,7 @@ if (app.get('env') === 'development') {
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function (err, req, res, next) {
+app.use(function (err, req, res) {
     var status = err.status || 500;
     res.status(status);
     res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error' + status, {

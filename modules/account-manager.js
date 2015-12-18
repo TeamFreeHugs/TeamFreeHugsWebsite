@@ -2,10 +2,6 @@ var crypto = require('crypto');
 var mongo = require('mongodb').MongoClient;
 var moment = require('moment');
 
-var dbPort = 27017;
-var dbHost = 'localhost';
-var dbName = 'TFHWebSite';
-
 /* establish the database connection */
 
 var db,
@@ -13,8 +9,8 @@ var db,
     chatUsers;
 
 mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db1) {
+    if (err) throw err;
     db = db1;
-
     users = db1.collection('users');
     chatUsers = db1.collection('chatUsers');
 });
@@ -61,13 +57,14 @@ exports.addNewAccount = function (newData, callback) {
                         newData.confirmed = false;
                         newData.confirmToken = generateSalt();
                         newData.tokenExpire = nextWeek;
-                        users.insert(newData, {safe: true}, callback);
+                        newData.calendarToken = require('md5')(new Date().toString() + newData.email + newData.date + generateSalt() + generateSalt() + +new Date + Math.random()) + generateSalt();
+                            users.insert(newData, {safe: true}, callback);
                         chatUsers.insert({
                             name: newData.user,
                             email: newData.email,
                             emailHash: newData.emailHash,
                             imgURL: newData.imgURL,
-                            key: require('md5')(newData.email + newData.date + generateSalt()),
+                            key: require('md5')(new Date().toString() + newData.email + newData.date + generateSalt() + generateSalt() + +new Date + Math.random()) + generateSalt(),
                             rooms: [],
                             confirmed: false
                         }, {safe: true});
