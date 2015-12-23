@@ -291,17 +291,21 @@ router.post(/\/rooms\/\d+\/messages\/add\/?$/, function (req, res) {
                 }));
             }
 
-            dbcs.chatMessages.insert({
-                roomId: roomID,
-                text: req.body.text,
-                senderImgURL: user.imgURL,
-                senderName: user.name
-            });
-
             res.status(200);
             res.send('');
             res.end();
             dbcs.chatMessages.count(function (e, count) {
+                dbcs.chatMessages.insert({
+                    roomId: roomID,
+                    text: req.body.text,
+                    senderImgURL: user.imgURL,
+                    senderName: user.name,
+                    id: count + 1,
+                    starred: false,
+                    starCount: 0,
+                    starrers: []
+                });
+
                 broadcastWSEvent(roomID, JSON.stringify({
                     eventType: 1,
                     content: req.body.text,
@@ -536,6 +540,66 @@ router.post('/messages/broadcast/', function (req, res) {
                 }
             });
         });
+});
+
+router.post(/^\/rooms\/\d+\/stars$/, function (req, res) {
+    var id = parseInt(req.url.split(/^\/rooms\/(\d+)\/stars$/)[1]);
+    console.log(req.url.split(/^\/rooms\/(\d+)\/stars$/)[1]);
+    dbcs.chatRooms.findOne({roomId: id}, function (err, room) {
+        if (!room) {
+            res.status(400);
+            res.send(JSON.stringify({
+                error: 'No such room!'
+            }));
+            res.end();
+        } else {
+            var limit = parseInt(req.body.limit) || 50;
+            dbcs.chatMessages.find({roomId: id, starred: true}, function (err, messages) {
+                res.status(200);
+                res.write('[');
+                messages.limit(limit).each(function (err, message) {
+                    if (!message) {
+                        res.write(']');
+                        res.end();
+                    } else {
+                        res.write(JSON.stringify({
+                                id: message.id,
+                                content: message.text,
+                                user: message.senderName
+                            }) + ', ');
+                    }
+                });
+            });
+        }
+    });
+});
+
+router.post(/^\/messages\/\d+\/star$/, function (req, res) {
+    var id = req.url.split(/^\/messages\/(\d+)\/star$/)[1];
+    dbcs.chatUsers.findOne({key: req.body.key}, function (err, user) {
+        if (!user) {
+            res.status(400);
+            res.send(JSON.stringify({
+                error: 'Invalid key!'
+            }));
+            res.end();
+            return;
+        }
+        dbcs.chatMessages.findOne({id: parseInt(id)}, function (err, message) {
+            if (message.starrers.indexOf(user.name) == -1) {
+                message.starred = true;
+                message.starCount += 1;
+            } else if (message.starrers.indexOf(user.name) != -1) {
+                //Unstar
+                message.starCount -= 1;
+                message.starred = message.starCount === 0;
+
+            }
+            dbcs.chatMessages.save(message, {safe: true});
+            res.status(200);
+            res.end();
+        });
+    });
 });
 
 module.exports = router;
