@@ -91,7 +91,7 @@ global.dailyChatKeyUpdate = function dailyChatKeyUpdate() {
                 wsRooms[r].forEach(function (ws) {
                     if (ws.username === user.name)
                         if (wsRooms[r][ws].readyState === wsRooms[r][ws].OPEN)
-                            wsRooms[r][ws].send(JSON.stringify({}));
+                            wsRooms[r][ws].send(JSON.stringify({eventType: 1001, newKey: user.key}));
                 });
             });
             dbcs.chatUsers.save(user, {safe: true});

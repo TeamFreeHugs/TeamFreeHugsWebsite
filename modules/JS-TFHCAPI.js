@@ -97,6 +97,8 @@ function Room(id, name, desc, key, host) {
             data = JSON.parse(data);
             if (data.eventType === 1) {
                 fireEvent(new MessageSentEvent(data.senderName, data.content, data.messageID));
+            } else if (data.eventType === 1001) {
+                key = data.key;
             }
         });
         websocket.on('close', function () {

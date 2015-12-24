@@ -42,6 +42,17 @@ function showPopupDialog(message) {
         }, 1000));
 }
 
+$(window).blur(function () {
+    window.active = false;
+}).focus(function () {
+    window.active = true;
+    window.unreadCount = 0;
+    document.title = 'TFHChat: ' + $('.rightBar > h4:nth-child(2)').text()
+});
+
+window.active = true;
+window.unreadCount = true;
+
 function createChatWS() {
     var ws = new WebSocket('ws://' + location.hostname + ':4000/rooms/' + CHAT.room.id + (!!CHAT.user.name ? '?key=' + key() : ''));
     ws.onmessage = function (msg) {
@@ -51,6 +62,10 @@ function createChatWS() {
                 //New message!
                 addMessage(data.senderName, data.senderImg, data.content, data.messageID, (data.senderName === CHAT.user.name));
                 $("html,body").animate({scrollTop: $('.messageWrap').height() * $('.messageWrap').length + 100}, 0);
+                if (!window.active) {
+                    window.unreadCount++;
+                    document.title = '(' + window.unreadCount + ') TFHChat: ' + $('.rightBar > h4:nth-child(2)').text()
+                }
                 break;
             case 2:
                 //User joined
@@ -88,6 +103,7 @@ function createChatWS() {
                             icon: '/favicon.png',
                             body: data.content
                         });
+                        document.title = '(' + window.unreadCount + '*) TFHChat: ' + $('.rightBar > h4:nth-child(2)').text()
                     }
                 }
 
@@ -95,6 +111,9 @@ function createChatWS() {
             case 1000:
                 //BROADCASTING!!!
                 showPopupDialog('Broadcast message: ' + data.message);
+                break;
+            case 1001:
+                $('#key').val(data.key);
                 break;
             default:
                 //Unknown eventID, user to reload tab if there are updates
