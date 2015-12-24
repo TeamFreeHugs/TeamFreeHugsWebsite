@@ -1,4 +1,5 @@
-function addMessage(sender, senderImg, content, messageID, isOut) {
+function addMessage(sender, senderImg, content, messageID, isOut, starred) {
+    console.log(starred);
     $('.mainChat').append(
         $('<div class="messageWrap">').append(
             $('<div class="userCard">').append(
@@ -12,7 +13,9 @@ function addMessage(sender, senderImg, content, messageID, isOut) {
                 'padding-bottom': '5px'
             })
         ).append(
-            $('<div class="messageBubble' + (isOut ? ' messageOut' : '') + '">').attr('id', 'message-' + messageID).html(markdown(content))
+            $('<div class="messageBubble' + (isOut ? ' messageOut' : '') + '">').attr('id', 'message-' + messageID).html(markdown(content)).append(
+                $('<span class="messageStar' + (!!starred ? ' starred' : '') + '">★</span>').attr('id', 'message-' + messageID + '-star')
+            )
         ).append($('<hr>'))
     )
 }
@@ -138,17 +141,19 @@ $(function () {
     };
 
     CHAT.ws = createChatWS();
-    $.ajax({
+    var op = {
         type: 'POST',
         url: '/chat/rooms/' + CHAT.room.id + '/messages'
-    }).done(function (data) {
+    };
+    if (CHAT.user.name) {
+        op.data = {key: key()};
+    }
+    $.ajax(op).done(function (data) {
         var messages = JSON.parse(data);
-        for (var messageID in messages) {
-            if (!messages.hasOwnProperty(messageID))
-                continue;
-            var message = messages[messageID];
-            addMessage(message.senderName, message.senderImg, message.content, messageID, (message.senderName === CHAT.user.name));
-        }
+        messages.forEach(function (message) {
+            console.log(message);
+            addMessage(message.senderName, message.senderImg, message.content, message.id, (message.senderName === CHAT.user.name), message.starred);
+        });
         $("html,body").animate({scrollTop: $('.messageWrap').height() * $('.messageWrap').length + 100}, 0);
         $('#blockChat, #chatLoading').remove();
     });
@@ -176,4 +181,5 @@ $(function () {
             }
         }
     });
+
 });

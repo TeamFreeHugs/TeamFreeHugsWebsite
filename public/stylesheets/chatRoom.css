@@ -136,3 +136,13 @@ body {
 .ping {
   background: #f4c2c2;
 }
+.messageStar {
+  float: right;
+  margin-right: 10px;
+  top: -40px;
+  position: relative;
+  height: 0;
+}
+.starred {
+  color: #ff0;
+}

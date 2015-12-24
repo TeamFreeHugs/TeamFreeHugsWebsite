@@ -60,12 +60,13 @@ exports.addNewAccount = function (newData, callback) {
                         newData.tokenExpire = nextWeek;
                         newData.calendarToken = require('md5')(new Date().toString() + newData.email + newData.date + generateSalt() + generateSalt() + +new Date + Math.random()) + generateSalt();
                             users.insert(newData, {safe: true}, callback);
+                        var currentKey = require('md5')(new Date().toString() + newData.email + newData.date + generateSalt() + generateSalt() + +new Date + Math.random()) + generateSalt();
                         chatUsers.insert({
                             name: newData.user,
                             email: newData.email,
                             emailHash: newData.emailHash,
                             imgURL: newData.imgURL,
-                            key: require('md5')(new Date().toString() + newData.email + newData.date + generateSalt() + generateSalt() + +new Date + Math.random()) + generateSalt(),
+                            key: currentKey,
                             rooms: [],
                             confirmed: false
                         }, {safe: true});

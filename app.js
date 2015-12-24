@@ -105,6 +105,7 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
     db.createCollection('chatUsers', function (err, collection) {
         if (err) throw err;
         dbcs.chatUsers = collection;
+        dailyChatKeyUpdate();
 
     });
     db.createCollection('chatMessages', function (err, collection) {
@@ -124,7 +125,6 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
         dbcs.calendar = collection;
     });
 });
-
 
 app.use('/', routes);
 app.use('/instagram', instagram);
@@ -146,28 +146,24 @@ app.use(function (req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-    app.use(function (err, req, res) {
-        var status = err.status || 500;
-        res.status(status);
-        res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error' + status, {
+    app.use(function (err, req, res, next) {
+        res.status(err.status || 500);
+        console.log((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/error/error' + err.status || 500);
+        res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/error/error' + err.status || 500, {
             message: err.message,
-            error: err,
-            user: req.session.user
+            error: err
         });
     });
 }
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function (err, req, res) {
-    var status = err.status || 500;
-    res.status(status);
-    res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error' + status, {
+app.use(function (err, req, res, next) {
+    res.status(err.status || 500);
+    res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/error/error' + err.status || 500, {
         message: err.message,
-        error: {},
-        user: req.session.user
+        error: {}
     });
 });
-
 
 module.exports = app;

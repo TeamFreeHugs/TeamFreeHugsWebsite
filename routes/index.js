@@ -12,8 +12,9 @@ router.get('/', function (req, res, next) {
     });
 });
 
-router.get('/500', function () {
-    throw new Error('Force 500 page');
+router.get('/500', function (req, res, next) {
+    next(new Error('Force 500 page'));
 });
+
 
 module.exports = router;

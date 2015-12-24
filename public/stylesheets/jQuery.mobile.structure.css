@@ -1921,7 +1921,7 @@ textarea.ui-input-text.ui-textinput-autogrow {
 .ui-radio .ui-btn {
     margin: 0;
     text-align: left;
-    white-space: normal; /* Nowrap + ellipsis doesn't work on label. Issue #1419. */
+    white-space: normal; /* Nowrap + ellipsis doesn'dailyChatKeyUpdate work on label. Issue #1419. */
     z-index: 2;
 }
 .ui-controlgroup .ui-checkbox .ui-btn.ui-focus,
@@ -2299,7 +2299,7 @@ div.ui-rangeslider label {
     text-indent: 0;
     display: block;
 }
-/* ui-li-count is styled in the listview CSS. We set padding and offset here because select supports icon position while listview doesn't. */
+/* ui-li-count is styled in the listview CSS. We set padding and offset here because select supports icon position while listview doesn'dailyChatKeyUpdate. */
 .ui-select .ui-li-has-count.ui-btn {
     padding-right: 2.8125em;
 }
@@ -2340,7 +2340,7 @@ div.ui-rangeslider label {
     -webkit-border-bottom-left-radius: 0;
     border-bottom-left-radius: 0;
 }
-/* when no placeholder is defined in a multiple select, the header height doesn't even extend past the close button.  this shim's content in there */
+/* when no placeholder is defined in a multiple select, the header height doesn'dailyChatKeyUpdate even extend past the close button.  this shim's content in there */
 .ui-selectmenu.ui-popup .ui-header h1:after {
     content: '.';
     visibility: hidden;
@@ -3181,7 +3181,7 @@ ol.ui-listview > li img:first-child + * ~ * {
     position: absolute !important; /* See issues #4816, #4844 and #4874 and popup.js */
 }
 .ui-popup-screen {
-    background-image: url("data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="); /* Necessary to set some form of background to ensure element is clickable in IE6/7. While legacy IE won't understand the data-URI'd image, it ensures no additional requests occur in all other browsers with little overhead. */
+    background-image: url("data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="); /* Necessary to set some form of background to ensure element is clickable in IE6/7. While legacy IE won'dailyChatKeyUpdate understand the data-URI'd image, it ensures no additional requests occur in all other browsers with little overhead. */
     top: 0;
     left: 0;
     right: 0;
@@ -3721,7 +3721,7 @@ ol.ui-listview > li img:first-child + * ~ * {
 
 
 /* Hack to make IE9 and WP7.5 treat cells like block level elements, scoped to ui-responsive class */
-/* Applied in a max-width media query up to the table layout breakpoint so we don't need to negate this*/
+/* Applied in a max-width media query up to the table layout breakpoint so we don'dailyChatKeyUpdate need to negate this*/
 @media ( max-width: 35em ) {
     .ui-table-reflow.ui-responsive td,
     .ui-table-reflow.ui-responsive th {
