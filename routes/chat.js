@@ -383,7 +383,7 @@ router.post(/\/rooms\/\d+\/messages\/add\/?$/, function (req, res) {
 
 router.post(/^\/rooms\/\d+\/messages\/?$/, function (req, res) {
     var roomID = parseInt(req.url.match(/\d+/).join(''));
-    var limit = req.body.count || 10;
+    var limit = req.body.count || 50;
     var key = req.body.key;
 
     function cb(loggedIn, user) {
