@@ -383,7 +383,7 @@ router.post(/\/rooms\/\d+\/messages\/add\/?$/, function (req, res) {
 
 router.post(/^\/rooms\/\d+\/messages\/?$/, function (req, res) {
     var roomID = parseInt(req.url.match(/\d+/).join(''));
-    var limit = req.body.count || 50;
+    var limit = req.body.count || 10;
     var key = req.body.key;
 
     function cb(loggedIn, user) {
@@ -399,26 +399,32 @@ router.post(/^\/rooms\/\d+\/messages\/?$/, function (req, res) {
             var returnObj = [];
             res.status(200);
             var found = 0;
-            dbcs.chatMessages.find({roomId: roomID}).skip(limit).each(function (error, message) {
-                if (!message || found === limit) {
-                    res.send(JSON.stringify(returnObj));
-                    res.end();
-                    return;
+            var messages = dbcs.chatMessages.find({roomId: roomID});
+            messages.count(false, function (err, count) {
+                if (count > limit) {
+                    //More messages then limit
+                    messages.skip(count - limit);
                 }
-                console.log(message);
-                var items = {
-                    content: message.text,
-                    senderName: message.senderName,
-                    senderImg: message.senderImgURL,
-                    id: message.id
-                };
-                if (loggedIn) {
-                    items.starred = message.starrers.indexOf(user) != -1;
-                }
-                returnObj.push(items);
-                found++;
+                messages.each(function (error, message) {
+                    if (!message || found === limit) {
+                        res.send(JSON.stringify(returnObj));
+                        res.end();
+                        return;
+                    }
+                    var items = {
+                        content: message.text,
+                        senderName: message.senderName,
+                        senderImg: message.senderImgURL,
+                        id: message.id
+                    };
+                    if (loggedIn) {
+                        items.starred = message.starrers.indexOf(user) != -1;
+                    }
+                    returnObj.push(items);
+                    found++;
+                });
             });
-        })
+        });
     }
 
     if (!key) {
