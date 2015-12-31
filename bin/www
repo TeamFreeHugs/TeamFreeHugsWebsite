@@ -32,7 +32,13 @@ global.server.on('error', onError);
 global.server.on('listening', onListening);
 
 fs.readFile('user-info.json', function (err, data) {
-    if (err) throw err;
+    if (err) {
+        var args = process.argv.slice(2);
+        console.log(args);
+        if (args.indexOf('--no-signup-confirm') != -1) return;
+        else throw err;
+    }
+
     var userdata = JSON.parse(data);
     global.transporter = nodemailer.createTransport({
         service: userdata.service,
