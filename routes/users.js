@@ -240,6 +240,7 @@ router.get(/\/user\/\w+\/?$/, function (req, res) {
     var name = req.url.match(/user\/(\w+)\/?/)[1];
     dbcs.users.findOne({name: name}, function (err, user) {
         if (!user) {
+            res.status(404);
             res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404', {
                 message: 'Not Found',
                 error: {},
@@ -275,6 +276,8 @@ router.get(/^\/user\/\w+\/edit\/?$/, function (req, res) {
     var name = req.url.match(/user\/(\w+)\/?/)[1];
     dbcs.users.findOne({name: name}, function (err, user) {
         if (!user || !req.session.user || (req.session.user.name !== name && !req.session.user.isMod)) {
+
+            res.status(404);
             res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404', {
                 message: 'Not Found',
                 error: {},
@@ -302,6 +305,8 @@ router.post(/\/user\/\w+\/edit\/?$/, function (req, res) {
     var name = req.url.match(/user\/(\w+)\/?/)[1];
     dbcs.users.findOne({name: name}, function (err, user) {
         if (!user || !req.session.user || (req.session.user.name !== name && !req.session.user.isMod)) {
+
+            res.status(404);
             res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404', {
                 message: 'Not Found',
                 error: {},
@@ -388,6 +393,7 @@ router.get(/^\/reset\-password\/\w+$/, function (req, res) {
     var token = req.url.split(/^\/reset\-password\/(\w+)$/)[1];
     dbcs.users.findOne({resetToken: token}, function (err, user) {
         if (!user) {
+            res.status(404);
             res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404', {
                 message: 'Not Found',
                 error: {},
@@ -404,7 +410,9 @@ router.get(/^\/reset\-password\/\w+$/, function (req, res) {
 router.post(/^\/reset\-password\/\w+$/, function (req, res) {
     var token = req.url.split(/^\/reset\-password\/(\w+)$/)[1];
     dbcs.users.findOne({resetToken: token}, function (err, user) {
+        console.log(user);
         if (!user) {
+            res.status(404);
             res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404', {
                 message: 'Not Found',
                 error: {},
