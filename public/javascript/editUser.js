@@ -17,6 +17,19 @@ $(function () {
         var strength = passStrength($('#password').val());
         $('#passwordStrength').css('width', strength);
     }
+
     $('#password').on('keydown, keyup, input', checkStrength);
     $('#password2').on('keydown, keyup, input', checkStrength);
+
+    $('#aboutMe').on('input', function () {
+        $('#output').html(markdown($('#aboutMe').val()));
+    });
+
+    $('#output').html(markdown($('#aboutMe').val()));
+
+    Mousetrap($('#aboutMe')[0]).bind(['command+enter', 'ctrl+enter'], function () {
+        console.log('Hi');
+        $('#submit').click();
+    });
+
 });

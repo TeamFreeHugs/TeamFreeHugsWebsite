@@ -1,0 +1,13 @@
+extends ../layout
+
+block head
+    link(rel="stylesheet" href="/stylesheets/forgot.css")
+
+block content
+    form(method="POST" action="/users/forgot")#forgotForm
+        label Please enter your email here. If any account with that email was found, a password reset link will be sent.
+        br
+        input(name="email" placeholder="Email address")
+        br
+        br
+        input(type="submit")

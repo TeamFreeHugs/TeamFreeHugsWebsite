@@ -19,7 +19,6 @@ router.get('/current', function (req, res) {
 });
 
 router.get(/\/current\/\w+\/?$/, function (req, res) {
-    console.log('/users/user/' + req.session.user.name + '/' + req.url.split(/\/current\/(\w+)$/)[1]);
     if (!req.session.user) {
         res.redirect('/users/login?continue=' + req.url);
     } else {
@@ -128,6 +127,13 @@ router.post('/login', function (req, res) {
             });
             return;
         }
+        if (e === 'not-confirmed') {
+            res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/login', {
+                title: 'Login to Team Free Hugs',
+                error: 'You have not confirmed your account yet! Please visit your email to do so!'
+            });
+            return;
+        }
         req.session.user = o;
         if (req.body.referrer) res.redirect(req.body.referrer); else
             res.redirect('/?signup=true');
@@ -147,7 +153,6 @@ router.post('/logout', function (req, res) {
 
 router.get(/\/confirm\/\w+$/, function (req, res) {
     var confirmToken = require('url').parse(req.url).pathname.split(/\/confirm\/(\w+)$/).join('');
-    console.log(confirmToken);
     AM.isValidConfirmLink(confirmToken, function (code) {
         if (code === 'valid-token') {
             res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/confirm', {
@@ -246,6 +251,10 @@ router.get(/\/user\/\w+\/?$/, function (req, res) {
         var joinDetails = user.date.split(/(\w+) (\d+\w+) (\d+), /).filter(function (e) {
             return !!e;
         });
+        var canModify = false;
+        if (!!req.session.user) {
+            canModify = req.session.user.name === name || req.session.user.isMod
+        }
         res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/userPage', {
             title: 'User ' + name,
             name: name,
@@ -253,19 +262,19 @@ router.get(/\/user\/\w+\/?$/, function (req, res) {
             dateJoined: joinDetails[1],
             yearJoined: joinDetails[2],
             imgURL: user.imgURL,
-            isOwn: !req.session.user || req.session.user.name === name,
+            canModify: canModify,
             user: req.session.user,
-            aboutMe: user.aboutMe,
+            aboutMe: require('../modules/helper').markdown(user.aboutMe),
             isMod: user.isMod
         });
     });
 });
 
 
-router.get(/\/user\/\w+\/edit\/?$/, function (req, res) {
+router.get(/^\/user\/\w+\/edit\/?$/, function (req, res) {
     var name = req.url.match(/user\/(\w+)\/?/)[1];
     dbcs.users.findOne({name: name}, function (err, user) {
-        if (!user || !req.session.user || req.session.user.name === name) {
+        if (!user || !req.session.user || (req.session.user.name !== name && !req.session.user.isMod)) {
             res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404', {
                 message: 'Not Found',
                 error: {},
@@ -274,12 +283,16 @@ router.get(/\/user\/\w+\/edit\/?$/, function (req, res) {
             return;
         }
         name = user.name;
+        var back = "/users/user/" + name + "/";
         res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/editUser', {
             title: 'User ' + name,
             name: name,
             imgURL: user.imgURL,
             user: req.session.user,
-            aboutMe: user.aboutMe
+            aboutMe: user.aboutMe,
+            back: back,
+            editorMod: req.session.user.isMod,
+            isMod: user.isMod
         });
     });
 });
@@ -288,7 +301,7 @@ router.get(/\/user\/\w+\/edit\/?$/, function (req, res) {
 router.post(/\/user\/\w+\/edit\/?$/, function (req, res) {
     var name = req.url.match(/user\/(\w+)\/?/)[1];
     dbcs.users.findOne({name: name}, function (err, user) {
-        if (!user || !req.session.user || req.session.user.name === name) {
+        if (!user || !req.session.user || (req.session.user.name !== name && !req.session.user.isMod)) {
             res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404', {
                 message: 'Not Found',
                 error: {},
@@ -297,22 +310,115 @@ router.post(/\/user\/\w+\/edit\/?$/, function (req, res) {
             return;
         }
         name = user.name;
-        AM.updateAccount({
+        var newData = {
             user: user.name,
             name: user.name,
             email: user.email,
-            imgURL: user.imgURL,
-            aboutMe: req.body.aboutMe || '',
-            pass: req.body.password || ''
-        }, function () {
+            aboutMe: req.body.aboutMe || ''
+        };
+        if (req.session.user.isMod && user.name != "UniBot")
+            newData.isMod = !!req.body.isMod || false;
+
+        AM.updateAccount(newData, function (e, o) {
+            var back = "/users/user/" + name + "/";
             res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/editUser', {
                 title: 'User ' + name,
                 name: name,
                 imgURL: user.imgURL,
                 user: req.session.user,
                 aboutMe: req.body.aboutMe,
-                message: 'Profile updated successfully!'
+                message: 'Profile updated successfully!',
+                back: back,
+                editorMod: req.session.user.isMod,
+                isMod: o.isMod
             });
+        });
+    });
+});
+
+router.get('/forgot', function (req, res) {
+    res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/forgot', {
+        title: 'Forgot Password',
+        user: req.session.user
+    });
+});
+
+
+var generateSalt = function () {
+    var keys = '0123456789abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ';
+    var salt = '';
+    for (var i = 0; i < 10; i++) {
+        var p = Math.floor(Math.random() * keys.length);
+        salt += keys[p];
+    }
+    return salt;
+};
+
+router.post('/forgot', function (req, res) {
+    var email = req.body.email || '';
+    dbcs.users.findOne({email: email, name: {$ne: "UniBot"}}, function (err, user) {
+        if (!!user) {
+            var args = process.argv.slice(2);
+            var resetToken = generateSalt();
+            user.resetToken = resetToken;
+            dbcs.users.save(user, {safe: true}, noop);
+            if (args.indexOf('--no-signup-confirm') != -1) {
+                res.redirect('/reset-password/' + resetToken);
+                return;
+            } else {
+                var data = require('fs').readFileSync('views/resetPassword.jade').utf8Slice();
+                data = data.replace(/\$\{USERNAME}/, user.user).replace(/\$\{LINK}/, "http://localhost:3000/users/reset-password/" + resetToken);
+                transporter.sendMail({
+                    from: 'Team Free Hugs <teamfreehugs@teamfreehugs.com>',
+                    to: email,
+                    subject: 'Password reset for user ' + user.name,
+                    html: require('jade').compile(data, {})()
+                }, function (error, info) {
+                });
+            }
+        }
+        res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/forgotD', {
+            title: 'Email sent!',
+            user: req.session.user
+        });
+    });
+});
+
+router.get(/^\/reset\-password\/\w+$/, function (req, res) {
+    var token = req.url.split(/^\/reset\-password\/(\w+)$/)[1];
+    dbcs.users.findOne({resetToken: token}, function (err, user) {
+        if (!user) {
+            res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404', {
+                message: 'Not Found',
+                error: {},
+                user: req.session.user
+            });
+            return;
+        }
+        res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/resetPassword', {
+            user: req.session.user
+        });
+    });
+});
+
+router.post(/^\/reset\-password\/\w+$/, function (req, res) {
+    var token = req.url.split(/^\/reset\-password\/(\w+)$/)[1];
+    dbcs.users.findOne({resetToken: token}, function (err, user) {
+        if (!user) {
+            res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404', {
+                message: 'Not Found',
+                error: {},
+                user: req.session.user
+            });
+            return;
+        }
+
+        delete user.resetToken;
+        dbcs.users.save(user, {safe: true}, noop);
+
+        AM.updatePassword(user.email, req.body.password, noop);
+        res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/resetPasswordD', {
+            user: req.session.user
         });
     });
 });

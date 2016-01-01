@@ -1,16 +1,12 @@
 extends ../layout
 
-block head
-    script="window.aboutMe='" + encodeURI(aboutMe) + "'"
-    script.
-        $(function () {
-            $('#aboutMe').html(markdown(decodeURI(aboutMe)));
-        });
-
 block content
     img(src=imgURL width=32 height=32 style='transform: translate(0%, 20%);')
     h1(style='display: inline-block')='User ' + name + (isMod ? '  ♦' : '')
     h4 About Me:
-    div(style="margin-left: 10px; width: 500px; height: 300px; border: 1px solid #000000; overflow: auto")#aboutMe
-    if isOwn
+    div(style="margin-left: 10px; width: 500px; height: 300px; border: 1px solid #000000; overflow: auto")#aboutMe=aboutMe
+    script.remove.
+        $('#aboutMe').html($('#aboutMe').text());
+        $('.remove').remove();
+    if canModify
         a(href="/users/user/" + name + "/edit") Edit profile

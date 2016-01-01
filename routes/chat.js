@@ -560,21 +560,19 @@ router.post(/\/rooms\/\d+\/leave\/?$/, function (req, res) {
     });
 });
 
-var allowedUsersToBroadCast = [
-    'eyeballcode'
-];
+
+function throw404() {
+    var err = new Error('Not found');
+    err.status = 404;
+    throw err;
+}
 
 router.get('/messages/broadcast/', function (req, res) {
-    function throw404() {
-        var err = new Error('Not found');
-        err.status = 404;
-        throw err;
-    }
-
-    // Only allow me (Eyeballcode) to broadcast things, haha
-    if (!req.session.user || allowedUsersToBroadCast.indexOf(req.session.user.name.toLowerCase()) === -1) {
+    if (!req.session.user) {
         throw404();
     } else {
+        var user = req.session.user;
+        if (!user.isMod) throw404();
         if (res.userAgent.indexOf('mobile') != -1) {
             // Handle mobile someday
             res.status(400);
@@ -587,15 +585,12 @@ router.get('/messages/broadcast/', function (req, res) {
 });
 
 router.post('/messages/broadcast/', function (req, res) {
-    function throw404() {
-        var err = new Error('Not found');
-        err.status = 404;
-        throw err;
-    }
 
-    if (!req.session.user || allowedUsersToBroadCast.indexOf(req.session.user.name.toLowerCase()) === -1) {
+    if (!req.session.user) {
         throw404();
-    } else
+    } else {
+        var user = req.session.user;
+        if (!user.isMod) throw404();
         dbcs.chatRooms.find({}, function (e, rooms) {
             rooms.each(function (e, room) {
                 if (!!room) {
@@ -608,6 +603,7 @@ router.post('/messages/broadcast/', function (req, res) {
                 }
             });
         });
+    }
 });
 
 router.post(/^\/rooms\/\d+\/stars$/, function (req, res) {

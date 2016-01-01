@@ -19,17 +19,18 @@ mongo.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db1) {
 /* login validation methods */
 
 exports.manualLogin = function (user, pass, callback) {
-    users.findOne({user: user, confirmed: true}, function (e, o) {
+    users.findOne({user: user}, function (e, o) {
         if (o == null) {
             callback('user-not-found');
         } else {
-            validatePassword(pass, o.pass, function (err, res) {
-                if (res) {
-                    callback(null, o);
-                } else {
-                    callback('invalid-password');
-                }
-            });
+            if (!o.confirmed) callback('not-confirmed'); else
+                validatePassword(pass, o.pass, function (err, res) {
+                    if (res) {
+                        callback(null, o);
+                    } else {
+                        callback('invalid-password');
+                    }
+                });
         }
     });
 };
@@ -59,8 +60,7 @@ exports.addNewAccount = function (newData, callback) {
                         newData.confirmed = confirmed;
                         newData.confirmToken = generateSalt();
                         newData.tokenExpire = nextWeek;
-                        newData.calendarToken = require('md5')(new Date().toString() + newData.email + newData.date + generateSalt() + generateSalt() + +new Date + Math.random()) + generateSalt();
-                            users.insert(newData, {safe: true}, callback);
+                        users.insert(newData, {safe: true}, callback);
                         var currentKey = require('md5')(new Date().toString() + newData.email + newData.date + generateSalt() + generateSalt() + +new Date + Math.random()) + generateSalt();
                         chatUsers.insert({
                             name: newData.user,
@@ -108,6 +108,7 @@ exports.updateAccount = function (newData, callback) {
         o.name = newData.name;
         o.email = newData.email;
         o.aboutMe = newData.aboutMe;
+        o.isMod = newData.isMod;
         newData.emailHash = require('md5')(newData.email);
         if (newData.pass == '') {
             users.save(o, {safe: true}, function (err) {
