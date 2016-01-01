@@ -1,6 +1,6 @@
 $(function () {
 
-    $(window).keydown('esc', function (e) {
+    Mousetrap.bind('esc', function (e) {
         if ($('#sidebar-left').attr('data-showing') === 'true') {
             $('#dropdown').click();
         }
@@ -39,7 +39,8 @@ $(function () {
         e.preventDefault();
         $('#dropdown').click();
     };
-    $(window).keydown('ctrl+shift+d', toggleSidebar);
-    $('input').keydown('ctrl+shift+d', toggleSidebar);
+    $('input, textarea').addClass("mousetrap");
+
+    Mousetrap.bind(['ctrl+shift+d', 'command+shift+d'], toggleSidebar);
 
 });

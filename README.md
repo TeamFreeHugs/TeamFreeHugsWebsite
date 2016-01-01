@@ -10,7 +10,7 @@ This few things were used in this project:
 
 3. Node-login by @braitsch. [Link here](https://github.com/braitsch/node-login)
 
-4. jQuery-hotkeys by @jeresig. [Link here](https://github.com/jeresig/jquery.hotkeys)
+4. MouseTrap by @ccampbell. [Link here](https://github.com/ccampbell/mousetrap)
 
 5. jQuery-highlight by @bartaz. [Link here](https://github.com/bartaz/sandbox.js/blob/master/jquery.highlight.js)
 
@@ -35,7 +35,6 @@ This few things were used in this project:
 4\. You're good to go! Run this to start the server:
 
     nodejs bin/www
-    
 
 
 ##Additional Thanks to:

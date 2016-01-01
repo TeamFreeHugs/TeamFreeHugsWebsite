@@ -31,7 +31,7 @@ html
         script.
             $(function () {
 
-                $(window).keydown('esc', function (e) {
+                Mousetrap.bind('esc', function (e) {
                     if ($('#sidebar-left').attr('data-showing') === 'true') {
                         $('.dropdown').click();
                     }
@@ -70,10 +70,11 @@ html
                     e.preventDefault();
                     $('.dropdown').click();
                 };
-                $(window).keydown('ctrl+shift+d', toggleSidebar);
-                $('textarea').keydown('ctrl+shift+d', toggleSidebar);
+                $('input, textarea').addClass("mousetrap");
+
+                Mousetrap.bind(['ctrl+shift+d', 'command+shift+d'], toggleSidebar);
             });
-        script(src='/javascript/jQuery.hotkeys.js')
+        script(src='/javascript/MouseTrap.js')
         script(src="/javascript/helper.js")
         script(src="/javascript/chat-helper.js")
         script(src='/javascript/CryptoJS.js')

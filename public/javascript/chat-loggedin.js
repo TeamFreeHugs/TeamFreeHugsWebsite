@@ -19,7 +19,7 @@ $(function () {
         }
     });
 
-    $('#messageInput').keydown('enter', function (e) {
+    Mousetrap($('#messageInput')[0]).bind('enter', function (e) {
         e.preventDefault();
         $('#send').click();
     });
