@@ -1,11 +1,19 @@
-function addMessage(sender, senderImg, content, messageID, isOut, starred) {
-    console.log(starred);
+function addMessage(sender, senderImg, content, messageID, isOut, starred, isMod, starCount) {
+    if (!!CHAT.user.name) {
+        var star = $('<span class="messageStar' + (starred ? ' starred' : '') + '">★</span>').attr('id', 'message-' + messageID + '-star').click(function () {
+            $.post('/chat/' + $(this).attr('id').replace(/\-/g, '/').replace('message', 'messages'), {key: key()});
+        });
+        if (!!starCount)
+            star.append(' <span style="color: #000">' + starCount + '</span>');
+        else
+            star.append(' <span style="color: #000">0</span>');
+    }
     $('.mainChat').append(
         $('<div class="messageWrap">').append(
             $('<div class="userCard">').append(
                 $('<img width="32" height="32">').attr('src', senderImg)
             ).append(
-                $('<a>').text(sender).attr('href', '/users/user/' + sender).css({
+                $('<a>').addClass(isMod ? 'modMessage' : '').text(sender).attr('href', '/users/user/' + sender).css({
                     transform: 'translate(20%, 50%)',
                     position: 'absolute'
                 })
@@ -14,7 +22,7 @@ function addMessage(sender, senderImg, content, messageID, isOut, starred) {
             })
         ).append(
             $('<div class="messageBubble' + (isOut ? ' messageOut' : '') + '">').attr('id', 'message-' + messageID).html(markdown(content)).append(
-                $('<span class="messageStar' + (!!starred ? ' starred' : '') + '">★</span>').attr('id', 'message-' + messageID + '-star')
+                !!star ? star : ''
             )
         ).append($('<hr>'))
     )
@@ -60,7 +68,8 @@ function createChatWS() {
         switch (data.eventType) {
             case 1:
                 //New message!
-                addMessage(data.senderName, data.senderImg, data.content, data.messageID, (data.senderName === CHAT.user.name));
+                console.log(data);
+                addMessage(data.senderName, data.senderImg, data.content, data.messageID, (data.senderName === CHAT.user.name), false, data.isMod);
                 $("html,body").animate({scrollTop: $('.messageWrap').height() * $('.messageWrap').length + 100}, 0);
                 if (!window.active) {
                     window.unreadCount++;
@@ -97,7 +106,7 @@ function createChatWS() {
                 break;
             case 4:
                 //Ping, only works if user is logged in. Just check and be safe.
-                if (CHAT.user.name) {
+                if (!!CHAT.user.name) {
                     if (Notification.permission === "granted") {
                         var notify = new Notification('You have been pinged!', {
                             icon: '/favicon.png',
@@ -107,6 +116,13 @@ function createChatWS() {
                     }
                 }
 
+                break;
+            case 5:
+                $('#message-' + data.messageID + '-star').html('★ <span style="color: #000">' + data.starCount + '</span>');
+                if (!!CHAT.user.name) {
+                    var iStarred = data.starred;
+                    if (iStarred) $('#message-' + data.messageID + '-star').addClass('starred'); else $('#message-' + data.messageID + '-star').removeClass('starred');
+                }
                 break;
             case 1000:
                 //BROADCASTING!!!
@@ -170,8 +186,7 @@ $(function () {
     $.ajax(op).done(function (data) {
         var messages = JSON.parse(data);
         messages.forEach(function (message) {
-            console.log(message);
-            addMessage(message.senderName, message.senderImg, message.content, message.id, (message.senderName === CHAT.user.name), message.starred);
+            addMessage(message.senderName, message.senderImg, message.content, message.id, (message.senderName === CHAT.user.name), message.starred, message.isMod, message.starCount);
         });
         $("html,body").animate({scrollTop: $('.messageWrap').height() * $('.messageWrap').length + 100}, 0);
         $('#blockChat, #chatLoading').remove();

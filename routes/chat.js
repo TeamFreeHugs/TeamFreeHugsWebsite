@@ -307,71 +307,74 @@ router.post(/\/rooms\/\d+\/messages\/add\/?$/, function (req, res) {
             return;
         }
         var key = req.body.key;
-        dbcs.chatUsers.findOne({key: key}, function (err, user) {
-            if (!user) {
-                res.status(400);
-                res.send(JSON.stringify({
-                    error: 'Invalid key'
-                }));
-                res.end();
-                return;
-            }
-            if (user.rooms.indexOf(roomID) === -1) {
-                user.rooms.push(roomID);
-                dbcs.chatUsers.save(user, {safe: true}, function () {
-                });
-                broadcastWSEvent(roomID, JSON.stringify({
-                    eventType: 2,
-                    user: user.name,
-                    userImgURL: user.imgURL
-                }));
-            }
-            dbcs.chatMessages.count(function (e, count) {
-                dbcs.chatMessages.insert({
-                    roomId: roomID,
-                    text: req.body.text,
-                    senderImgURL: user.imgURL,
-                    senderName: user.name,
-                    id: count + 1,
-                    starred: false,
-                    starCount: 0,
-                    starrers: []
-                });
-
-                broadcastWSEvent(roomID, JSON.stringify({
-                    eventType: 1,
-                    content: req.body.text,
-                    senderName: user.name,
-                    senderImg: user.imgURL,
-                    messageID: count
-                }));
-                var pings = req.body.text.match(/@\w+/g);
-                if (pings)
-                    pings.forEach(function (ping) {
-                        //Find user in room
-                        dbcs.chatUsers.find({rooms: {$in: [roomID]}}, function (err, users) {
-                            users.each(function (e, foundUser) {
-                                if (!foundUser)
-                                    return;
-                                if (foundUser.name === user.name)
-                                    return;
-                                if (canStringPingUser(ping, foundUser.name)) {
-                                    if (wsRooms[roomID])
-                                        wsRooms[roomID].forEach(function (websocket) {
-                                            if (websocket.username) {
-                                                if (websocket.username === foundUser.name) {
-                                                    websocket.send(JSON.stringify({
-                                                        eventType: 4,
-                                                        messageID: count,
-                                                        content: req.body.text
-                                                    }));
+        dbcs.chatUsers.findOne({key: key}, function (err, cUser) {
+            dbcs.users.findOne({name: cUser.name}, function (err, user) {
+                if (!cUser) {
+                    res.status(400);
+                    res.send(JSON.stringify({
+                        error: 'Invalid key'
+                    }));
+                    res.end();
+                    return;
+                }
+                if (cUser.rooms.indexOf(roomID) === -1) {
+                    cUser.rooms.push(roomID);
+                    dbcs.chatUsers.save(cUser, {safe: true}, noop);
+                    broadcastWSEvent(roomID, JSON.stringify({
+                        eventType: 2,
+                        user: cUser.name,
+                        userImgURL: cUser.imgURL
+                    }));
+                }
+                dbcs.chatMessages.count(function (e, count) {
+                    dbcs.chatMessages.insert({
+                        roomId: roomID,
+                        text: req.body.text,
+                        senderImgURL: cUser.imgURL,
+                        senderName: cUser.name,
+                        id: count + 1,
+                        starred: false,
+                        starCount: 0,
+                        starrers: [],
+                        isMod: user.isMod
+                    });
+                    console.log(user.isMod);
+                    broadcastWSEvent(roomID, JSON.stringify({
+                        eventType: 1,
+                        content: req.body.text,
+                        senderName: cUser.name,
+                        senderImg: cUser.imgURL,
+                        messageID: count,
+                        isMod: user.isMod
+                    }));
+                    var pings = req.body.text.match(/@\w+/g);
+                    if (pings)
+                        pings.forEach(function (ping) {
+                            //Find cUser in room
+                            dbcs.chatUsers.find({rooms: {$in: [roomID]}}, function (err, users) {
+                                users.each(function (e, foundUser) {
+                                    if (!foundUser)
+                                        return;
+                                    if (foundUser.name === cUser.name)
+                                        return;
+                                    if (canStringPingUser(ping, foundUser.name)) {
+                                        if (wsRooms[roomID])
+                                            wsRooms[roomID].forEach(function (websocket) {
+                                                if (websocket.username) {
+                                                    if (websocket.username === foundUser.name) {
+                                                        websocket.send(JSON.stringify({
+                                                            eventType: 4,
+                                                            messageID: count,
+                                                            content: req.body.text
+                                                        }));
+                                                    }
                                                 }
-                                            }
-                                        });
-                                }
+                                            });
+                                    }
+                                });
                             });
                         });
-                    });
+                });
             });
 
             res.status(200);
@@ -415,7 +418,9 @@ router.post(/^\/rooms\/\d+\/messages\/?$/, function (req, res) {
                         content: message.text,
                         senderName: message.senderName,
                         senderImg: message.senderImgURL,
-                        id: message.id
+                        id: message.id,
+                        isMod: message.isMod,
+                        starCount: message.starCount
                     };
                     if (loggedIn) {
                         items.starred = message.starrers.indexOf(user) != -1;
@@ -657,11 +662,37 @@ router.post(/^\/messages\/\d+\/star$/, function (req, res) {
                 //Unstar
                 message.starCount -= 1;
                 message.starred = message.starCount === 0;
-                message.starrers.pop(message.starrers.indexOf(user.name));
+                message.starrers.splice(message.starrers.indexOf(user.name), 1);
             }
             dbcs.chatMessages.save(message, {safe: true});
             res.status(200);
             res.end();
+            var roomID = message.roomId;
+            if (wsRooms[roomID])
+                wsRooms[roomID].forEach(function (websocket) {
+                    if (websocket.username) {
+                        dbcs.chatMessages.findOne({
+                            starrers: {
+                                $in: [websocket.username]
+                            },
+                            id: message.id
+                        }, function (err, message2) {
+                            websocket.send(JSON.stringify({
+                                eventType: 5,
+                                messageID: message.id,
+                                starred: !!message2,
+                                starCount: message.starCount
+                            }));
+                        });
+                    } else {
+                        websocket.send(JSON.stringify({
+                            eventType: 5,
+                            messageID: message.id,
+                            starCount: message.starCount
+                        }));
+                    }
+                });
+
         });
     });
 });
