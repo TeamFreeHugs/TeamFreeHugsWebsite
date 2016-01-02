@@ -13,6 +13,7 @@ var MongoStore = require('connect-mongo')(session);
 var app = express();
 
 global.noop = function () {
+    return noop;
 };
 
 global.dbcs = {};
@@ -48,6 +49,14 @@ app.use(require('compression')());
 
 app.use(function (req, res, next) {
     res.userAgent = req.headers['user-agent'].toString().toLowerCase();
+    if (!!req.session.user) dbcs.users.findOne({name: req.session.user.name, isDirty: true}, function (err, user) {
+        if (!!user) {
+            req.session.user = user;
+            delete user.isDirty;
+            dbcs.users.save(user, {safe: true}, noop);
+        }
+
+    });
     next();
 });
 

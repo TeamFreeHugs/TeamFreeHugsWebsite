@@ -109,6 +109,7 @@ exports.updateAccount = function (newData, callback) {
         o.email = newData.email;
         o.aboutMe = newData.aboutMe;
         o.isMod = newData.isMod;
+        o.isDirty = true;
         newData.emailHash = require('md5')(newData.email);
         if (newData.pass == '') {
             users.save(o, {safe: true}, function (err) {

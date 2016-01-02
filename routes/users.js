@@ -96,7 +96,6 @@ router.get('/login', function (req, res) {
 });
 
 router.post('/login', function (req, res) {
-
     if (typeof req.body.username === 'undefined') {
         res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/login', {
             title: 'Login to Team Free Hugs',
@@ -252,21 +251,31 @@ router.get(/\/user\/\w+\/?$/, function (req, res) {
             return !!e;
         });
         var canModify = false;
-        if (!!req.session.user) {
-            canModify = req.session.user.name === name || req.session.user.isMod
+        console.log(req.session.user.name === name || req.session.user.isMod || user.isMod);
+
+        function render() {
+            res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/userPage', {
+                title: 'User ' + name,
+                name: name,
+                monthJoined: joinDetails[0],
+                dateJoined: joinDetails[1],
+                yearJoined: joinDetails[2],
+                imgURL: user.imgURL,
+                canModify: canModify,
+                user: req.session.user,
+                aboutMe: require('../modules/helper').markdown(user.aboutMe),
+                isMod: user.isMod
+            });
         }
-        res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/userPage', {
-            title: 'User ' + name,
-            name: name,
-            monthJoined: joinDetails[0],
-            dateJoined: joinDetails[1],
-            yearJoined: joinDetails[2],
-            imgURL: user.imgURL,
-            canModify: canModify,
-            user: req.session.user,
-            aboutMe: require('../modules/helper').markdown(user.aboutMe),
-            isMod: user.isMod
-        });
+
+        if (!!req.session.user) {
+            dbcs.users.findOne({name: req.session.user.name}, function (err, user) {
+                canModify = req.session.user.name === name || req.session.user.isMod || user.isMod;
+                render();
+            });
+        } else
+
+            render();
     });
 });
 
@@ -274,10 +283,10 @@ router.get(/\/user\/\w+\/?$/, function (req, res) {
 router.get(/^\/user\/\w+\/edit\/?$/, function (req, res) {
     var name = req.url.match(/user\/(\w+)\/?/)[1];
     dbcs.users.findOne({name: name}, function (err, user) {
-        if (!user || !req.session.user || (req.session.user.name !== name && !req.session.user.isMod)) {
-
-
+        console.log(req.session.user);
+        if (req.session.user.name !== user.name && !req.session.user.isMod) {
             throw404(res, req);
+            return;
         }
         name = user.name;
         var back = "/users/user/" + name + "/";
@@ -298,10 +307,9 @@ router.get(/^\/user\/\w+\/edit\/?$/, function (req, res) {
 router.post(/\/user\/\w+\/edit\/?$/, function (req, res) {
     var name = req.url.match(/user\/(\w+)\/?/)[1];
     dbcs.users.findOne({name: name}, function (err, user) {
-        if (!user || !req.session.user || (req.session.user.name !== name && !req.session.user.isMod)) {
-
-
+        if (req.session.user.name !== user.name && !req.session.user.isMod) {
             throw404(res, req);
+            return;
         }
         name = user.name;
         var newData = {
@@ -312,6 +320,8 @@ router.post(/\/user\/\w+\/edit\/?$/, function (req, res) {
         };
         if (req.session.user.isMod && user.name != "UniBot")
             newData.isMod = !!req.body.isMod || false;
+
+        if (user.name === "UniBot") newData.isMod = true;
 
         AM.updateAccount(newData, function (e, o) {
             var back = "/users/user/" + name + "/";
@@ -385,6 +395,7 @@ router.get(/^\/reset\-password\/\w+$/, function (req, res) {
     dbcs.users.findOne({resetToken: token}, function (err, user) {
         if (!user) {
             throw404(res, req);
+            return;
         }
         res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/resetPassword', {
             user: req.session.user
@@ -400,6 +411,7 @@ function throw404(res, req) {
         user: req.session.user
     });
 }
+
 router.post(/^\/reset\-password\/\w+$/, function (req, res) {
     var token = req.url.split(/^\/reset\-password\/(\w+)$/)[1];
     dbcs.users.findOne({resetToken: token}, function (err, user) {

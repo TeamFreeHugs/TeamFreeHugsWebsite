@@ -2,3 +2,4 @@ node_modules
 .idea
 data/
 user-info.json
+npm-debug.log
