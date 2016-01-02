@@ -56,10 +56,10 @@ exports.addNewAccount = function (newData, callback) {
                         newData.aboutMe = '';
                         newData.isMod = false;
                         var today = new Date();
-                        var nextWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7);
+                        var nextDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
                         newData.confirmed = confirmed;
                         newData.confirmToken = generateSalt();
-                        newData.tokenExpire = nextWeek;
+                        newData.tokenExpire = nextDay;
                         users.insert(newData, {safe: true}, callback);
                         var currentKey = require('md5')(new Date().toString() + newData.email + newData.date + generateSalt() + generateSalt() + +new Date + Math.random()) + generateSalt();
                         chatUsers.insert({

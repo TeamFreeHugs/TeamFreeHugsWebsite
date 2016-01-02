@@ -164,18 +164,22 @@ router.get(/\/confirm\/\w+$/, function (req, res) {
                 });
             });
         }
-        else if (code === 'token-expired')
+        else if (code === 'token-expired') {
+            res.status(400);
             res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/confirm', {
                 title: 'Error while confirming account',
                 error: 1
             });
+        }
         else if (code === 'no-such-token')
-            res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404');
-        else if (code === 'token-used')
+            throw404(res, req);
+        else if (code === 'token-used') {
+            res.status(400);
             res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/confirm', {
                 title: 'Error while confirming account',
                 error: 2
             });
+        }
     });
 });
 
@@ -240,13 +244,8 @@ router.get(/\/user\/\w+\/?$/, function (req, res) {
     var name = req.url.match(/user\/(\w+)\/?/)[1];
     dbcs.users.findOne({name: name}, function (err, user) {
         if (!user) {
-            res.status(404);
-            res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404', {
-                message: 'Not Found',
-                error: {},
-                user: req.session.user
-            });
-            return;
+
+            throw404(res, req);
         }
         var name = user.name;
         var joinDetails = user.date.split(/(\w+) (\d+\w+) (\d+), /).filter(function (e) {
@@ -277,13 +276,8 @@ router.get(/^\/user\/\w+\/edit\/?$/, function (req, res) {
     dbcs.users.findOne({name: name}, function (err, user) {
         if (!user || !req.session.user || (req.session.user.name !== name && !req.session.user.isMod)) {
 
-            res.status(404);
-            res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404', {
-                message: 'Not Found',
-                error: {},
-                user: req.session.user
-            });
-            return;
+
+            throw404(res, req);
         }
         name = user.name;
         var back = "/users/user/" + name + "/";
@@ -306,13 +300,8 @@ router.post(/\/user\/\w+\/edit\/?$/, function (req, res) {
     dbcs.users.findOne({name: name}, function (err, user) {
         if (!user || !req.session.user || (req.session.user.name !== name && !req.session.user.isMod)) {
 
-            res.status(404);
-            res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404', {
-                message: 'Not Found',
-                error: {},
-                user: req.session.user
-            });
-            return;
+
+            throw404(res, req);
         }
         name = user.name;
         var newData = {
@@ -366,6 +355,8 @@ router.post('/forgot', function (req, res) {
             var args = process.argv.slice(2);
             var resetToken = generateSalt();
             user.resetToken = resetToken;
+            var today = new Date();
+            user.resetTokenExpire = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
             dbcs.users.save(user, {safe: true}, noop);
             if (args.indexOf('--no-signup-confirm') != -1) {
                 res.redirect('/reset-password/' + resetToken);
@@ -393,13 +384,7 @@ router.get(/^\/reset\-password\/\w+$/, function (req, res) {
     var token = req.url.split(/^\/reset\-password\/(\w+)$/)[1];
     dbcs.users.findOne({resetToken: token}, function (err, user) {
         if (!user) {
-            res.status(404);
-            res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404', {
-                message: 'Not Found',
-                error: {},
-                user: req.session.user
-            });
-            return;
+            throw404(res, req);
         }
         res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/resetPassword', {
             user: req.session.user
@@ -407,20 +392,25 @@ router.get(/^\/reset\-password\/\w+$/, function (req, res) {
     });
 });
 
+function throw404(res, req) {
+    res.status(404);
+    res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404', {
+        message: 'Not Found',
+        error: {},
+        user: req.session.user
+    });
+}
 router.post(/^\/reset\-password\/\w+$/, function (req, res) {
     var token = req.url.split(/^\/reset\-password\/(\w+)$/)[1];
     dbcs.users.findOne({resetToken: token}, function (err, user) {
-        console.log(user);
         if (!user) {
-            res.status(404);
-            res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/errors/error404', {
-                message: 'Not Found',
-                error: {},
-                user: req.session.user
-            });
+            throw404(res, req);
             return;
         }
-
+        if (+user.resetTokenExpire < +new Date) {
+            throw404();
+            return;
+        }
         delete user.resetToken;
         dbcs.users.save(user, {safe: true}, noop);
 

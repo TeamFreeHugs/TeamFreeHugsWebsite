@@ -1,5 +1,13 @@
 extends ../layout
 
 block content
-    h1 Thanks! You may now login!
-    a(href='../login') Click here to login.
+    if typeof error === 'undefined'
+        h1 Thanks! You may now login!
+        a(href='../login') Click here to login.
+    else
+        if error === 1
+            h1 Sorry, your confirmation token has expired. Your user will be deleted. Please
+                a(href="/users/signup")  Signup&nbsp;
+                | again.
+        else if error === 2
+            h1 Sorry, your confirmation token has already been used. If you feel this is an error, please contact us.
