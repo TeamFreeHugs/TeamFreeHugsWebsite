@@ -7,29 +7,41 @@
 var app = require('../app');
 var debug = require('debug')('TeamFreeHugsWebsite:server');
 var http = require('http');
+var https = require('https');
 var nodemailer = require('nodemailer');
 var fs = require('fs');
-
-/**
- * Get port from environment and store in Express.
- */
-
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
 
 /**
  * Create HTTP global.server.
  */
 
-global.server = http.createServer(app);
+var args = process.argv.slice(2);
 
-/**
- * Listen on provided port, on all network interfaces.
- */
+var port;
+if (args.indexOf('--port') == -1)
+    port = 80; else
+    port = parseInt(args[args.indexOf('--port') + 1]);
 
-global.server.listen(port);
-global.server.on('error', onError);
-global.server.on('listening', onListening);
+if (args.indexOf('--no-https') == -1) {
+    var options = {
+        key: fs.readFileSync(__dirname + '/../https/key.pem'),
+        cert: fs.readFileSync(__dirname + '/../https/cert.pem')
+    };
+    global.httpsServer = https.createServer(options, app).listen(443);
+    global.server = http.createServer(function (req, res) {
+        res.writeHead(301, {Location: 'https://' + req.headers['host'] + req.url});
+        res.end();
+    });
+    server.on('error', onError);
+    server.on('listening', onListening);
+    server.listen(port);
+} else {
+    global.server = http.createServer(app);
+    server.on('error', onError);
+    server.on('listening', onListening);
+    server.listen(port);
+}
+
 
 fs.readFile('user-info.json', function (err, data) {
     if (err) {
@@ -39,6 +51,8 @@ fs.readFile('user-info.json', function (err, data) {
     }
 
     var userdata = JSON.parse(data);
+    var required = ['username', 'password', 'service'];
+    for (var z in required) if (typeof userdata[required[z]] === 'undefined') throw new Error('Field ' + required[z] + ' not present in user-info.json!');
     global.transporter = nodemailer.createTransport({
         service: userdata.service,
         auth: {
@@ -49,26 +63,6 @@ fs.readFile('user-info.json', function (err, data) {
 });
 
 /**
- * Normalize a port into a number, string, or false.
- */
-
-function normalizePort(val) {
-    var port = parseInt(val, 10);
-
-    if (isNaN(port)) {
-        // named pipe
-        return val;
-    }
-
-    if (port >= 0) {
-        // port number
-        return port;
-    }
-
-    return false;
-}
-
-/**
  * Event listener for HTTP server "error" event.
  */
 
@@ -77,9 +71,7 @@ function onError(error) {
         throw error;
     }
 
-    var bind = typeof port === 'string'
-        ? 'Pipe ' + port
-        : 'Port ' + port;
+    var bind = error.port;
 
     // handle specific listen errors with friendly messages
     switch (error.code) {

@@ -15,7 +15,7 @@ function toPingFormat(user) {
 
 module.exports = {
     help: function (args, room) {
-        room.sendMessage('Hi. I\'m Uni\\*\'s Chatbot, in TFHCB, to challenge annoying girls who think they can fight programming.');
+        room.sendMessage('Hi. I\'m Uni\\*\'s Chatbot, a TFHCB, to challenge annoying girls who think they can fight programming.');
     }, kill: function (args, room) {
         if (args.length === 0) {
             room.sendMessage('Kill who?');

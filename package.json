@@ -18,6 +18,7 @@
     "express-session": "1.11.3",
     "jade": "~1.11.0",
     "jsdom": "latest",
+    "kerberos": "0.0.17",
     "md5": "^2.0.0",
     "merge-descriptors": "^1.0.0",
     "moment": "2.10.3",
