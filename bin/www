@@ -23,11 +23,11 @@ if (args.indexOf('--port') == -1)
     port = parseInt(args[args.indexOf('--port') + 1]);
 
 if (args.indexOf('--no-https') == -1) {
-    var options = {
+    var sslKeys = {
         key: fs.readFileSync(__dirname + '/../https/server.key'),
         cert: fs.readFileSync(__dirname + '/../https/server.crt')
     };
-    global.httpsServer = https.createServer(options, app).listen(443);
+    global.httpsServer = https.createServer(sslKeys, app).listen(443);
     global.server = http.createServer(function (req, res) {
         res.writeHead(301, {Location: 'https://' + req.headers['host'] + req.url});
         res.end();

@@ -3,23 +3,53 @@ var WebSocketServer = require('ws').Server;
 var url2 = require('url');
 var unibot = require('../Chatbot-Unibot');
 var http = require('http');
+var https = require('https');
 var colors = require('colors');
+var fs = require('fs');
 
-var wsHttpServer = http.createServer(function (req, res) {
+
+var args = process.argv.slice(2);
+
+var wsServer;
+
+function wsHandle(req, res) {
     if (!req.url.match(/\/rooms\/\d+/)) {
         res.writeHead(200);
         console.log(req.method.toUpperCase() + ' :4000' + req.url + ' ' + colors.styles.green.open + '200' + colors.styles.green.close);
-        res.end('This is the TFHWebSite Chat Websocket server.');
+        res.end('This is the Team Free Hugs Websocket Server! Connect using a WebSocket and ws' + ( args.indexOf('--no-https') != -1 ? '' : 's' ) + '.');
     } else {
         res.writeHead(400);
         console.log(req.method.toUpperCase() + ' :4000' + req.url + ' ' + colors.styles.yellow.open + '200' + colors.styles.yellow.close);
-        res.end('Looks like you are trying to request a chat room. Use a WebSocket instead.');
+        res.end('This is the Team Free Hugs Websocket Server! Connect using a WebSocket and ws' + ( args.indexOf('--no-https') != -1 ? '' : 's') + '.');
     }
-}).listen(4000);
-var wsServer = new WebSocketServer({
-    server: wsHttpServer
-});
+}
 
+if (args.indexOf('--no-https') == 1) {
+    var wsHttpServer = http.createServer(wsHandle).listen(4000);
+    wsServer = new WebSocketServer({
+        server: wsHttpServer
+    });
+} else {
+    var sslKeys = {
+        key: fs.readFileSync(__dirname + '/../https/server.key'),
+        cert: fs.readFileSync(__dirname + '/../https/server.crt')
+    };
+    var wsHttpsServer = https.createServer(sslKeys, wsHandle);
+
+    wsServer = new WebSocketServer({
+        server: wsHttpsServer
+    });
+    wsHttpsServer.listen(4000);
+    var wsHttp = http.createServer(function (req, res) {
+        res.send('This is the Team Free Hugs Websocket Server! Connect using a WebSocket and wss.');
+        res.end();
+    });
+    var wsHttpServerTmp = new WebSocketServer({server: wsHttp});
+    wsHttpServerTmp.on('connection', function (ws) {
+        ws.send('This is the Team Free Hugs Websocket Server! Connect using a WebSocket and wss.');
+        ws.close();
+    });
+}
 var wsRooms = {};
 require('mongodb').MongoClient.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
     var chatRooms = db.collection('chatRooms');
@@ -66,6 +96,9 @@ wsServer.on('connection', function (ws) {
             wsRooms[roomID].push(ws);
             console.log('GET :4000' + ws.upgradeReq.url + ' ' + colors.styles.green.open + '200' + colors.styles.green.close);
         });
+    } else {
+        ws.send('Unknown endpoint.');
+        ws.close();
     }
 });
 var dayInMilliseconds = 1000 * 60 * 60 * 24;
