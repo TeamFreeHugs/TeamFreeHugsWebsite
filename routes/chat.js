@@ -16,19 +16,20 @@ function wsHandle(req, res) {
     if (!req.url.match(/\/rooms\/\d+/)) {
         res.writeHead(200);
         console.log(req.method.toUpperCase() + ' :4000' + req.url + ' ' + colors.styles.green.open + '200' + colors.styles.green.close);
-        res.end('This is the Team Free Hugs Websocket Server! Connect using a WebSocket and ws' + ( args.indexOf('--no-https') != -1 ? '' : 's' ) + '.');
+        res.end('This is the Team Free Hugs WebSocket Server! Connect using a WebSocket and ws' + ( args.indexOf('--no-https') != -1 ? '' : 's' ) + '.');
     } else {
         res.writeHead(400);
         console.log(req.method.toUpperCase() + ' :4000' + req.url + ' ' + colors.styles.yellow.open + '200' + colors.styles.yellow.close);
-        res.end('This is the Team Free Hugs Websocket Server! Connect using a WebSocket and ws' + ( args.indexOf('--no-https') != -1 ? '' : 's') + '.');
+        res.end('This is the Team Free Hugs WebSocket Server! Connect using a WebSocket and ws' + ( args.indexOf('--no-https') != -1 ? '' : 's') + '.');
     }
 }
-
-if (args.indexOf('--no-https') == 1) {
-    var wsHttpServer = http.createServer(wsHandle).listen(4000);
+if (args.indexOf('--no-https') != -1) {
+    var wsHttpServer = http.createServer(wsHandle);
+    wsHttpServer.listen(4000);
     wsServer = new WebSocketServer({
         server: wsHttpServer
     });
+    wsServer.on('connection', callbackWSInit);
 } else {
     var sslKeys = {
         key: fs.readFileSync(__dirname + '/../https/server.key'),
@@ -41,14 +42,15 @@ if (args.indexOf('--no-https') == 1) {
     });
     wsHttpsServer.listen(4000);
     var wsHttp = http.createServer(function (req, res) {
-        res.send('This is the Team Free Hugs Websocket Server! Connect using a WebSocket and wss.');
+        res.send('This is the Team Free Hugs WebSocket Server! Connect using a WebSocket and wss.');
         res.end();
     });
     var wsHttpServerTmp = new WebSocketServer({server: wsHttp});
     wsHttpServerTmp.on('connection', function (ws) {
-        ws.send('This is the Team Free Hugs Websocket Server! Connect using a WebSocket and wss.');
+        ws.send('This is the Team Free Hugs WebSocket Server! Connect using a WebSocket and wss.');
         ws.close();
     });
+    wsServer.on('connection', callbackWSInit);
 }
 var wsRooms = {};
 require('mongodb').MongoClient.connect('mongodb://localhost:27017/TFHWebSite', {}, function (err, db) {
@@ -62,8 +64,7 @@ require('mongodb').MongoClient.connect('mongodb://localhost:27017/TFHWebSite', {
         });
     });
 });
-
-wsServer.on('connection', function (ws) {
+function callbackWSInit(ws) {
     var url = url2.parse(ws.upgradeReq.url, true);
     var location = url.path.toString();
     var userKey = url.query.key;
@@ -100,7 +101,7 @@ wsServer.on('connection', function (ws) {
         ws.send('Unknown endpoint.');
         ws.close();
     }
-});
+}
 var dayInMilliseconds = 1000 * 60 * 60 * 24;
 
 
