@@ -10,7 +10,7 @@ var http = require('http');
 var https = require('https');
 var nodemailer = require('nodemailer');
 var fs = require('fs');
-
+require('../smtp/smtp-server');
 /**
  * Create HTTP global.server.
  */
@@ -21,9 +21,8 @@ var port;
 if (args.indexOf('--port') == -1)
     port = 80; else
     port = parseInt(args[args.indexOf('--port') + 1]);
-
 if (args.indexOf('--no-https') == -1) {
-    var sslKeys = {
+        var sslKeys = {
         key: fs.readFileSync(__dirname + '/../https/server.key'),
         cert: fs.readFileSync(__dirname + '/../https/server.crt')
     };
@@ -45,7 +44,6 @@ if (args.indexOf('--no-https') == -1) {
 
 fs.readFile('user-info.json', function (err, data) {
     if (err) {
-        var args = process.argv.slice(2);
         if (args.indexOf('--no-signup-confirm') != -1) return;
         else throw err;
     }
@@ -58,7 +56,7 @@ fs.readFile('user-info.json', function (err, data) {
         auth: {
             user: userdata.username,
             pass: userdata.password
-        }
+        }, port: args.indexOf('--no-https') == -1 ? 465 : 25
     });
 });
 

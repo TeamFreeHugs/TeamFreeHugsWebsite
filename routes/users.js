@@ -251,7 +251,9 @@ router.get(/\/user\/\w+\/?$/, function (req, res) {
             return !!e;
         });
         var canModify = false;
-        console.log(req.session.user.name === name || req.session.user.isMod || user.isMod);
+        if (!!req.session.user) {
+            canModify = req.session.user.isMod || user.isMod || req.session.user.name === name;
+        }
 
         function render() {
             res.render((res.userAgent.indexOf('mobile') === -1 ? 'computer' : 'mobile') + '/users/userPage', {
